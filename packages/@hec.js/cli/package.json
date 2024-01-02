@@ -1,0 +1,20 @@
+{
+  "name": "@hec.js/cli",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "CLI tool for the hec webdev environment",
+  "bin": {
+    "hec": "./bin/hec.js",
+    "hec-favicon": "./bin/hec-favicon.js",
+    "hec-icons": "./bin/hec-icons.js",
+    "hec-font": "./bin/hec-font.js"
+  },
+  "main": "./lib/index.js",
+  "dependencies": {
+    "args": "^5.0.3",
+    "sharp": "^0.32.4",
+    "svg-to-ico": "^1.0.13",
+    "svgtofont": "^3.25.4",
+    "@hec.js/cli": "file:./"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "hec",
+  "workspaces": [
+    "packages/@hec.js/cli"
+  ]
+}
