@@ -9,8 +9,7 @@ import {
 } from 'fs/promises';
 import { tmpdir } from 'os';
 
-export async function font({input = './icon/', fontName = 'icon', output = './icon.css'}) {
-  console.log(input, fontName, output);
+export async function font({input = './', fontName = 'icon', output = './icon.css'}) {
 
   if (await stat(input)) {
     const dir = path.join(tmpdir(), 'font');
