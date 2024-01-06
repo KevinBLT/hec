@@ -1,4 +1,4 @@
-import { templateByName, pipes, signal } from '../dist/hec.min.js';
+import { templateByName, pipes, signal } from '../lib/index.js';
 import { generateRandomName } from './tools.js';
 
 const count = 10;
