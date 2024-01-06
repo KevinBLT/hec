@@ -3,8 +3,9 @@ import { signal } from "./signal.js";
 export const query = signal({});
 export const route = signal(location.pathname);
 
-if (!('URLPattern' in globalThis)) { 
-  await import('./polyfill/urlpattern.js');
+if (!('URLPattern' in window)) { 
+  // @ts-ignore
+  window.URLPattern = (await import('./polyfill/urlpattern.js')).URLPattern;
 }
 
 export function navigate(path = '') {
