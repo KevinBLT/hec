@@ -2,7 +2,7 @@
   "name": "@hec.js/cli",
   "type": "module",
   "version": "0.0.1",
-  "description": "CLI tool for the hec webdev environment",
+  "description": "CLI tool for the hec.dev environment",
   "bin": {
     "hec": "bin/hec.js",
     "hec-favicon": "bin/hec-favicon.js",

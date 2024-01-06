@@ -1,0 +1,12 @@
+{
+  "name": "@hec.js/api",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "API lib for the hec.dev environment",
+  "license": "MIT",
+  "main": "./lib/index.js",
+  "dependencies": {
+    "@hec.js/api": "file:./",
+    "urlpattern-polyfill": "^9.0.0"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "@hec.js/env",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "ENV lib for the hec.dev environment",
+  "license": "MIT",
+  "main": "./lib/index.js",
+  "dependencies": {
+    "@hec.js/env": "file:./"
+  },
+  "devDependencies": {
+    "vitest": "^1.1.1"
+  }
+}

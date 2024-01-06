@@ -1,0 +1,17 @@
+{
+  "name": "@hec.js/ui",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "UI lib for the hec.dev environment",
+  "license": "MIT",
+  "main": "./lib/index.js",
+  "scripts": {
+    "build": "esbuild --minify --format=esm --bundle ./lib/index.js > ./dist/hec.min.js"
+  },
+  "dependencies": {
+    "@hec.js/ui": "file:./"
+  },
+  "devDependencies": {
+    "vitest": "^1.1.1"
+  }
+}

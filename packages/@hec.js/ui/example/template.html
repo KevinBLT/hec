@@ -1,0 +1,13 @@
+<div data-preload="./data.json" data-as="fetch" class="template">
+  <link as="style" rel="stylesheet" href="template.css" type="text/css">
+  <span style="color: {{color}}" >Hi {{ name }} !</span>
+  <strong data-if="isLong">This is a long list!</strong>
+  <h5>Today is: {{ date date='' }}</h5>
+  <h6 data-route="*/b">Psshhh... only here on '/b' :D</h6>
+  <strong data-if="isLong" data-include="./lazy.html"></strong>
+  <ul>
+    <li data-for="let e,i of list">
+      <span data-include="./content.txt"></span>
+    </li>
+  </ul>
+</div>
