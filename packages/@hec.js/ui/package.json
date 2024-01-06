@@ -9,7 +9,8 @@
     "build": "esbuild --minify --format=esm --bundle ./lib/index.js > ./dist/hec.min.js"
   },
   "dependencies": {
-    "@hec.js/ui": "file:./"
+    "@hec.js/ui": "file:./",
+    "urlpattern-polyfill": "9.0.0"
   },
   "devDependencies": {
     "vitest": "^1.1.1"

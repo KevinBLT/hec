@@ -3,6 +3,10 @@ import { signal } from "./signal.js";
 export const query = signal({});
 export const route = signal(location.pathname);
 
+if (!('URLPattern' in globalThis)) { 
+  await import('./polyfill/urlpattern.js');
+}
+
 export function navigate(path = '') {
   window.history.pushState(null, null, path);
 }
