@@ -14,11 +14,9 @@
       import { templateByNode } from '../../lib/index.js';
 
       templateByNode(document.body, {
-        list: [
-          { count: Math.round(Math.random() * 0xffffff) },
-          { count: Math.round(Math.random() * 0xffffff) },
-          { count: Math.round(Math.random() * 0xffffff) },
-        ],
+        list: Array.from({ length: Math.round(Math.random() * 100)}, () => (
+          { count: Math.round(Math.random() * 0xffffff) })
+        ),
       });
 
     </script>
