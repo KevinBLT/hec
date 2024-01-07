@@ -1,3 +1,4 @@
+import { dataBindPlugin } from "./plugins/data-bind.js";
 import { dataForPlugin } from "./plugins/data-for.js";
 import { dataIfPlugin } from "./plugins/data-if.js";
 import { dataIncludePlugin } from "./plugins/data-include.js";
@@ -18,5 +19,6 @@ export const plugins = [
   dataIfPlugin,
   dataIncludePlugin,
   dataPreloadPlugin,
-  dataOnPlugin
+  dataOnPlugin,
+  dataBindPlugin
 ];
