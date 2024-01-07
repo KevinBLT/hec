@@ -5,13 +5,15 @@
  * }} Subscriber
  */
 
+
 /**
  * @template T
  * @typedef {{ 
  *   signal    : string,
  *   subscribe : function(Subscriber<T>): void,
- *   map       : function(function(T): any): Signal<any>
- * } & Function } Signal
+ *   map       : <V>(fn: (value: T) => V) => Signal<V>
+ *   update    : (value: T) => void
+ * } & ((newValue?: T | undefined) => T) } Signal
  */
 
 /**
@@ -25,17 +27,22 @@ export function signal(value, options = {}) {
   /** @type { Subscriber<T>[] } */
   const subscribers = [];
 
-  function getset() {
-    if (arguments.length) {
-      value = arguments[0];
+  /** @param { T } v */
+  const update = (v) => {
+    value = v;
 
-      for (const subscriber of subscribers) {
-        subscriber.next(value);
-      }
-
-    } else {
-      return value;
+    for (const subscriber of subscribers) {
+      subscriber.next(value);
     }
+  }
+
+  function getset() {
+    
+    if (arguments.length && value != arguments[0]) {
+      update(arguments[0]);
+    } 
+
+    return value;
   }
 
   /** @param { Subscriber<T> } sub  */
@@ -45,11 +52,17 @@ export function signal(value, options = {}) {
 
   return Object.assign(getset, {
     signal: options.name ?? '',
+    toString: () => value.toString(),
+    update,
     subscribe,
 
-    /** @param { function(T): Signal<any> } fn */
+    /**
+     * @template V
+     * @param { (value: T) => V } fn 
+     * @returns { Signal<V> } 
+     */
     map: (fn) => {
-      const mapped = signal(fn(value));
+      const mapped = signal(fn(value), { name: options.name + '#mapped:' });
 
       subscribe({ next: (v) => mapped(fn(v)) });
 
@@ -58,6 +71,42 @@ export function signal(value, options = {}) {
   });
 }
 
+/**
+ * @template T
+ * @param { (pre: T) => T } fn 
+ * @param { Signal<any>[] } signals 
+ * @param { T | undefined } initialValue 
+ * @returns { T }
+ */
+export function effect(fn, signals = [], initialValue = null) {
+
+  for (const signal of signals) {
+    signal.subscribe({ 
+      next: () => initialValue = fn(initialValue) 
+    });
+  }
+
+  return fn(initialValue);
+}
+
+/**
+ * @template T
+ * @param { (pre: T) => T } fn 
+ * @param { Signal<any>[] } signals 
+ * @returns { Signal<T> }
+ */
+export function memo(fn, signals = []) {
+  const v = signal(null);
+
+  v(effect(() => v(fn(v())), signals));
+  
+  return v;
+}
+
+/**
+ * @param {any} s 
+ * @returns {boolean} 
+ */
 export function isSignal(s) {
   return s && s.subscribe;
 }

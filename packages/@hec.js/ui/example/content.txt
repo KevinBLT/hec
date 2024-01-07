@@ -1,1 +1,0 @@
-Value is: {{ e }} and index is: {{ i }}

@@ -12,15 +12,19 @@ export function f(v) {
  * @returns { any }
  */
 export function prop(props, key) {
-  return new Function('$', 'return $.' + key)(props);
-}
+  const chain = key.split('.');
 
-/**
- * @param { {[key: string]: any} } props 
- * @param { string } key 
- * @param { any } value
- * @returns { any }
- */
-export function propUpdate(props, key, value) {
-  new Function('$', 'v', `$.${key} = v`)(props, value);
+  for (const p of chain) {
+
+    if (props?.subscribe) {
+      // TODO: Handle nested signals?
+      props = props.map((e) => e && e[p]);
+    } else if (typeof props === 'function') {
+      props = f(props);
+    } else {
+      props = props[p];
+    }
+  }
+
+  return props;
 }

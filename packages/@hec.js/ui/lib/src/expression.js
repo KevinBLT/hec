@@ -1,5 +1,5 @@
 /**
- * @typedef {{ meta: { [key: string]: string }, text: string, prop?: string }} Expression
+ * @typedef {{ meta: { [key: string]: string }, text: string, prop?: string, value?: () => string }} Expression
  * 
  * @param { string } text 
  * @returns {Expression}
