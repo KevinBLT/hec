@@ -13,6 +13,7 @@ import { f } from "./value.js";
  *   signal    : string,
  *   subscribe : function(Subscriber<T>): void,
  *   map       : <V>(fn: (value: T) => V) => Signal<V>
+ *   filter    : (fn: (value: T) => boolean) => Signal<T>
  *   update    : (value: T) => void
  * } & ((newValue?: T | undefined) => T) } Signal
  */
@@ -63,11 +64,23 @@ export function signal(value, options = {}) {
      * @returns { Signal<V> } 
      */
     map: (fn) => {
-      const mapped = signal(fn(value), { name: options.name + '#mapped:' });
+      const mapped = signal(fn(value), { name: options.name + '#map->' });
 
       subscribe({ next: (v) => mapped(fn(v)) });
 
       return mapped;
+    },
+
+    /**
+     * @param { (value: T) => boolean } fn 
+     * @returns { Signal<T> } 
+     */
+    filter: (fn) => {
+      const filtered = signal(fn(value) ? value : null, { name: options.name + '#filter->' });
+
+      subscribe({ next: (v) => fn(v) ? filtered(v) : null });
+
+      return filtered;
     }
   });
 }

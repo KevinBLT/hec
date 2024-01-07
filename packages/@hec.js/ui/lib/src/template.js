@@ -7,31 +7,39 @@ import { f, prop } from './value.js';
 /** @type { WeakSet<Node> } */
 const done               = new WeakSet();
 
-/** @type { WeakMap<string & object, HTMLTemplateElement> } */
-const anonymousTemplates = new WeakMap();
+/** @type {{ [key: string]: Promise<HTMLTemplateElement> }} */
+const templatesLoading = {}
 
 /**
- * @param { string } name
+ * @param { string | URL } name
  * @param { {[key: string]: any } } props
  * @returns { Node | Promise<Node> }
  */
 export function templateByName(name, props = {}) {
 
+  if (name instanceof URL) {
+    name = name.host == location.host ? name.pathname : name.toString();
+  }
+
   /** @type { HTMLTemplateElement } */
   let tmpl = document.querySelector(`template[data-name="${name}"]`);
 
-  return tmpl
-    ? templateByNode(tmpl.content.cloneNode(true).lastChild, props)
-    : new Promise(async (resolve) => {
-        tmpl = document.createElement('template');
+  if (!tmpl) {
+    templatesLoading[name] ??= new Promise(async (resolve) => {
+      tmpl = document.createElement('template');
 
-        tmpl.dataset.name = name;
-        tmpl.innerHTML = await fetch(name).then((r) => r.text());
+      tmpl.dataset.name = name.toString();
+      tmpl.innerHTML = await fetch(name).then((r) => r.text());
 
-        document.body.append(tmpl);
+      document.body.append(tmpl);
 
-        resolve(templateByNode(tmpl.content.cloneNode(true).lastChild, props));
-      });
+      resolve(tmpl);
+    });
+
+    return templatesLoading[name].then(e => templateByNode(e.content.cloneNode(true), props));
+  }
+
+  return templateByNode(tmpl.content.cloneNode(true).lastChild, props);
 }
 
 /**
@@ -134,19 +142,24 @@ export function templateByNode(template, props = {}) {
     done.add(node);
 
     if (node instanceof HTMLElement) {
-      const attributeNames = node.getAttributeNames();
-
-      for (const attributeName of attributeNames) {
-        const attribute = node.getAttribute(attributeName);
-
-        if (attribute.includes('{{')) {
-          bindExpressions(attribute, (text) => node.setAttribute(attributeName, text));
-        }
-      }
-
+      
       for (const plugin of plugins) {
         if (node.matches(plugin.select)) {
           plugin.run(node, props);
+        }
+      }
+
+      if (parentNode === node.parentNode) {
+        const attributeNames = node.getAttributeNames();
+        
+        for (const attributeName of attributeNames) {
+          const attribute = node.getAttribute(attributeName);
+  
+          if (attribute.includes('{{')) {
+            bindExpressions(attribute, (text) => {
+              node.setAttribute(attributeName, text.trim().replace(/ +/, ' '))
+            });
+          }
         }
       }
       

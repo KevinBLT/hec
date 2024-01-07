@@ -16,28 +16,28 @@ import { signal } from "./signal.js";
  */
 export function component(name, props, fn) {
 
-  /** @type { {[R in keyof T]: import("./signal.js").Signal<T[R]>} } */// @ts-ignore
-  const signals = Object.fromEntries(Object.entries(props).map(e => [e[0], signal(e[1])]));
-
   customElements.define(name, class extends HTMLElement {
     static observedAttributes = Object.keys(props);
 
+    /** @type { {[R in keyof T]: import("./signal.js").Signal<T[R]>} } */// @ts-ignore
+    #signals = Object.fromEntries(Object.entries(props).map(e => [e[0], signal(e[1])]));
+
     connectedCallback() {
       const shadow  = this.attachShadow({ mode: 'open' }),
-            node    = fn(signals);
+            node    = fn(this.#signals);
 
       /** @param { Node } node */
       const append = (node) => {
         shadow.append(node);
         this.dispatchEvent(new CustomEvent('::mount'));
 
-        for (const k in signals) {
+        for (const k in this.#signals) {
           
           if (!this.hasAttribute(k)) {
             this.setAttribute(k, props[k].toString());
           }
 
-          signals[k].subscribe({ 
+          this.#signals[k].subscribe({ 
             next: v => this.setAttribute(k, v.toString()) 
           });
         }
@@ -58,10 +58,10 @@ export function component(name, props, fn) {
     attributeChangedCallback(name, _, value) {
       if (typeof props[name] == 'number') {
         // @ts-ignore
-        signals[name](parseFloat(value));
+        this.#signals[name](parseFloat(value));
       } else {
         // @ts-ignore
-        signals[name](value);
+        this.#signals[name](value);
       }
     }
 

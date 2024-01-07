@@ -5,11 +5,21 @@ export const dataOnPlugin = {
   select: '[data-on]',
 
   run: (node, props) => {
-    const params = node.dataset.on.split(':'),
-          eventName = params[0],
-          funcName  = params.at(-1),
-          handler   = prop(props, funcName);
 
-    node.addEventListener(eventName, handler);
+    /** @param { string } on */
+    const addHander = (on) => {
+      const params    = on.split(':'),
+            eventName = params[0].trim(),
+            funcName  = params.at(-1).trim(),
+            handler   = prop(props, funcName);
+      
+      if (handler) {
+        node.addEventListener(eventName, handler);
+      }
+    }
+   
+    for (const on of node.dataset.on.split(',')) {
+      addHander(on);
+    }
   }
 }

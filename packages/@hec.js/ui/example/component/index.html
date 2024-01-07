@@ -7,6 +7,21 @@
     <script type="module" async src="./component.js"></script>
   </head>
   <body>
-    <my-counter></my-counter>
+    
+    <my-counter data-for="let e of list" count="{{ e.count }}"></my-counter>
+
+    <script type="module">
+      import { templateByNode } from '../../lib/index.js';
+
+      templateByNode(document.body, {
+        list: [
+          { count: Math.round(Math.random() * 0xffffff) },
+          { count: Math.round(Math.random() * 0xffffff) },
+          { count: Math.round(Math.random() * 0xffffff) },
+        ],
+      });
+
+    </script>
+
   </body>
 </html>
