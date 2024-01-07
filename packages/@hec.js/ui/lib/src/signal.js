@@ -1,10 +1,11 @@
+import { f } from "./value.js";
+
 /**
  * @template T
  * @typedef {{ 
  *   next: function(T): void 
  * }} Subscriber
  */
-
 
 /**
  * @template T
@@ -38,7 +39,7 @@ export function signal(value, options = {}) {
 
   function getset() {
     
-    if (arguments.length && value != arguments[0]) {
+    if (arguments.length && value !== arguments[0]) {
       update(arguments[0]);
     } 
 
@@ -104,9 +105,64 @@ export function memo(fn, signals = []) {
 }
 
 /**
- * @param {any} s 
- * @returns {boolean} 
+ * @template T
+ * @typedef {{ 
+ *   value: Signal<T>, 
+ *   error: Signal<null | string>,
+ *   loading: Signal<boolean>,
+ *   refetch: () => Promise<T | undefined>
+ * }} Resource 
  */
-export function isSignal(s) {
-  return s && s.subscribe;
+
+/** 
+ * @template T
+ * @param { () => Promise<T> } fetch 
+ * @returns { Resource<T> }
+ */
+export function resource(fetch) {
+
+  /** @type { Signal<T> } */
+  const value   = signal(null);
+  const loading = signal(true);
+  const error   = signal(null);
+
+  const update = async () => {
+    
+    try {
+      value(await fetch());
+      loading(false);
+    } catch (error) {
+      error(error);
+    }
+
+    return value();
+  }
+
+  update();
+
+  return { value, loading, error, refetch: update };
 }
+
+/**
+ * @template P
+ * @template T
+ * @param { P } prop 
+ * @param { (value: P) => Promise<T> } fetch 
+ * @returns { Resource<T> }
+*/
+export function resourceBy(prop, fetch) {
+  const r = resource(() => fetch(f(prop)));
+  
+  if (isSignal(prop)) {
+    prop.subscribe({ next: () => r.refetch() });
+  }
+
+  return r;
+}
+
+/**
+ * @template T
+ * @param { any | Signal<T> } s 
+ * @returns { s is Signal<T> } 
+ */
+export const isSignal = (s) => s && s.subscribe;
