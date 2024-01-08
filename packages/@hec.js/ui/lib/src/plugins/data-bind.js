@@ -3,10 +3,11 @@ import { f, prop } from "../value.js";
 
 /** @type {{ [key: string]: (node: HTMLInputElement) => any }} */
 const valueByType = {
-  number: (node) => node.valueAsNumber,
-  date:   (node) => node.valueAsDate,
-  text:   (node) => node.value,
-  ['']:   (node) => node.value 
+  number:   (node) => node.valueAsNumber,
+  date:     (node) => node.valueAsDate,
+  text:     (node) => node.value,
+  checkbox: (node) => node.checked,
+  ['']:     (node) => node.value 
 }
 
 /** @type {{ select: string, run: (node: HTMLInputElement, props: {[key: string]: any}) => void }} */
@@ -20,14 +21,21 @@ export const dataBindPlugin = {
     if (v) {
 
       /** @param { any } v  */
-      const update = (v) => node.value = v;
+      const update = (v) => {
+        if (node.type == 'checkbox') {
+          node.checked = v;
+        } else {
+          node.value = v;
+        }
+      }
 
       update(f(v));
 
       if (isSignal(v)) {
         v.subscribe({ next: update });
 
-        node.addEventListener('input', () => v(valueByType[node.type ?? ''](node)));
+        node.addEventListener('input',  () => v(valueByType[node.type]?.(node) ?? node.value));
+        node.addEventListener('change', () => v(valueByType[node.type]?.(node) ?? node.value));
       }
       
     }

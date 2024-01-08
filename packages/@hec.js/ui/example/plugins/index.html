@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>hec.js :: Plugins</title>
+    <script type="module" async src="./plugins.js"></script>
+
+    <style>
+      body >  div {
+        padding: 1rem;
+        background-color: rgb(240, 240, 240);
+        margin: 2rem;
+        border-radius: 0.25rem;
+      }
+
+      h3 {
+        margin: 0 0 1rem 0;
+      }
+
+    </style>
+  </head>
+  <body>
+
+    <div>
+
+      <h3>[data-if]: Uses a signal/value to make an element visible or hidden.</h3>
+      
+      <div>
+        <label>Visible</label>
+        <input name="if" type="checkbox" />
+      </div>
+  
+      <pre data-if="if">I am here!</pre>
+
+    </div>
+
+    <div>
+
+      <h3>[data-for]: Uses a signal/value to loop an element over a list.</h3>
+      
+      <div>
+        <label>Count</label><br>
+        <input name="listLength" type="number" />
+      </div>
+  
+      <pre data-for="let e of list">Element: {{ e }}</pre>
+
+    </div>
+
+    <div>
+      <h3>[data-include]: Loades the data of given path lazily when the element is visible.</h3>
+      
+      <pre data-include="./include.html"></pre>
+    </div>
+
+  </body>
+</html>
