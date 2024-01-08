@@ -11,7 +11,7 @@ import { f } from "./value.js";
  * @template T
  * @typedef {{ 
  *   signal    : string,
- *   subscribe : function(Subscriber<T>): void,
+ *   subscribe : (functions: Subscriber<T>, options?: { signal: AbortSignal }) => void,
  *   map       : <V>(fn: (value: T) => V) => Signal<V>
  *   filter    : (fn: (value: T) => boolean) => Signal<T>
  *   update    : (value: T) => void
@@ -24,7 +24,7 @@ import { f } from "./value.js";
  * @param {{ name?: string }} options 
  * @returns { Signal<T> }
  */
-export function signal(value, options = {}) {  
+export function signal(value = null, options = {}) {  
 
   /** @type { Subscriber<T>[] } */
   const subscribers = [];
@@ -47,9 +47,19 @@ export function signal(value, options = {}) {
     return value;
   }
 
-  /** @param { Subscriber<T> } sub  */
-  const subscribe = (sub) => {
-    subscribers.push(sub);
+  /** @param { Subscriber<T> } subscription  */
+  /** @param { { signal: AbortSignal } | undefined } options  */
+  const subscribe = (subscription, options = null) => {
+    subscribers.push(subscription);
+
+    options?.signal.addEventListener('abort', () => {
+      const index = subscribers.indexOf(subscription);
+
+      if (index > -1) {
+        subscribers.splice(index, 1);
+      }
+
+    }, { once: true});
   };
 
   return Object.assign(getset, {
@@ -64,7 +74,10 @@ export function signal(value, options = {}) {
      * @returns { Signal<V> } 
      */
     map: (fn) => {
-      const mapped = signal(fn(value), { name: options.name + '#map->' });
+
+      const mapped = signal(fn(value), { 
+        name: options.name + '#map->'
+      });
 
       subscribe({ next: (v) => mapped(fn(v)) });
 
@@ -76,7 +89,9 @@ export function signal(value, options = {}) {
      * @returns { Signal<T> } 
      */
     filter: (fn) => {
-      const filtered = signal(fn(value) ? value : null, { name: options.name + '#filter->' });
+      const filtered = signal(fn(value) ? value : null, { 
+        name: options.name + '#filter->' 
+      });
 
       subscribe({ next: (v) => fn(v) ? filtered(v) : null });
 
