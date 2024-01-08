@@ -141,10 +141,10 @@ export function templateByNode(template, props = {}) {
   const findExpression = (node) => {
     const parentNode = node.parentNode;
 
-    nodeProps.set(node, props);
-
     if (node instanceof HTMLElement) {
       
+      nodeProps.set(node, props);
+
       for (const plugin of plugins) {
         if (node.matches(plugin.select)) {
           plugin.run(node, props);
