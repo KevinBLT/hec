@@ -17,7 +17,7 @@ const options  = args.parse(process.argv),
 
         component('${name}', {}, () => {
 
-          return templateByName('${name}')
+          return templateByName('${name}');
         });
       `.replaceAll('        ', '');
 
