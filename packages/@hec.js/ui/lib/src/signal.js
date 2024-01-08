@@ -47,8 +47,10 @@ export function signal(value = null, options = {}) {
     return value;
   }
 
-  /** @param { Subscriber<T> } subscription  */
-  /** @param { { signal: AbortSignal } | undefined } options  */
+  /** 
+   * @param { Subscriber<T> } subscription 
+   * @param { { signal: AbortSignal } | undefined } options  
+   */
   const subscribe = (subscription, options = null) => {
     subscribers.push(subscription);
 
@@ -75,9 +77,7 @@ export function signal(value = null, options = {}) {
      */
     map: (fn) => {
 
-      const mapped = signal(fn(value), { 
-        name: options.name + '#map->'
-      });
+      const mapped = signal(fn(value));
 
       subscribe({ next: (v) => mapped(fn(v)) });
 
@@ -89,10 +89,8 @@ export function signal(value = null, options = {}) {
      * @returns { Signal<T> } 
      */
     filter: (fn) => {
-      const filtered = signal(fn(value) ? value : null, { 
-        name: options.name + '#filter->' 
-      });
-
+      const filtered = signal(fn(value) ? value : null);
+   
       subscribe({ next: (v) => fn(v) ? filtered(v) : null });
 
       return filtered;
@@ -104,30 +102,31 @@ export function signal(value = null, options = {}) {
  * @template T
  * @param { (pre: T) => T } fn 
  * @param { Signal<any>[] } signals 
- * @param { T | undefined } initialValue 
+ * @param { T | undefined } value 
  * @returns { T }
  */
-export function effect(fn, signals = [], initialValue = null) {
+export function effect(fn, signals = [], value = null) {
 
   for (const signal of signals) {
     signal.subscribe({ 
-      next: () => initialValue = fn(initialValue) 
+      next: () => value = fn(value) 
     });
   }
 
-  return fn(initialValue);
+  return fn(value);
 }
 
 /**
  * @template T
  * @param { (pre: T) => T } fn 
  * @param { Signal<any>[] } signals 
+ * @param { T | undefined } value 
  * @returns { Signal<T> }
  */
-export function memo(fn, signals = []) {
+export function memo(fn, signals = [], value = null) {
   const v = signal(null);
-
-  v(effect(() => v(fn(v())), signals));
+  
+  v(effect((pre) => v(fn(pre)), signals, value));
   
   return v;
 }

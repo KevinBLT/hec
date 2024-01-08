@@ -4,9 +4,7 @@ import { isSignal, signal } from "./signal.js";
  * @param { any | function(): any} v 
  * @returns { any }
  */
-export function f(v) {
-  return typeof v === 'function' ? f(v()) : v;
-}
+export const f = (v) => typeof v === 'function' ? f(v()) : v;
 
 /**
  * @param { {[key: string]: any} } props 
@@ -15,6 +13,10 @@ export function f(v) {
  */
 export function prop(props, key) {
   const chain = key.split('.');
+
+  if (!key) {
+    return props;
+  }
 
   for (const p of chain) {
 
