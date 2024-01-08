@@ -1,6 +1,15 @@
 import { isSignal, signal } from "./signal.js";
 
 /**
+ * @template T
+ * @type { WeakMap<Node, { [key: string]: any }> }
+ */
+export const nodeProps = new WeakMap();
+
+/** @param { Node } node  */
+export const propsOf = (node) => nodeProps.get(node);
+
+/**
  * @param { any | function(): any} v 
  * @returns { any }
  */

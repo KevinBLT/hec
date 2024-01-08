@@ -1,4 +1,4 @@
-import { prop } from "../value.js";
+import { prop } from "../props.js";
 
 /** @type { import("../plugins.js").Plugin } */
 export const dataOnPlugin = {

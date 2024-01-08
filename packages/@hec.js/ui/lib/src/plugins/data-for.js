@@ -1,6 +1,6 @@
 import { isSignal } from "../signal.js";
 import { templateByNode } from "../template.js";
-import { f, prop } from "../value.js";
+import { f, prop } from "../props.js";
 
 const done = new WeakSet();
 

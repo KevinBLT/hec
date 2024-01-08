@@ -1,4 +1,4 @@
-import { f } from "./value.js";
+import { f } from "./props.js";
 
 /**
  * @template T

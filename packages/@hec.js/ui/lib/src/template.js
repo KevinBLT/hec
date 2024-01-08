@@ -2,10 +2,7 @@ import { expression } from './expression.js';
 import { pipes } from './pipes.js';
 import { plugins } from './plugins.js';
 import { isSignal } from './signal.js';
-import { f, prop } from './value.js';
-
-/** @type { WeakSet<Node> } */
-const done               = new WeakSet();
+import { f, nodeProps, prop } from './props.js';
 
 /** @type {{ [key: string]: Promise<HTMLTemplateElement> }} */
 const templatesLoading = {}
@@ -66,7 +63,7 @@ export function templateByString(template, props = {}) {
  */
 export function templateByNode(template, props = {}) {
 
-  if (done.has(template)) {
+  if (nodeProps.has(template)) {
     return;
   }
 
@@ -144,7 +141,7 @@ export function templateByNode(template, props = {}) {
   const findExpression = (node) => {
     const parentNode = node.parentNode;
 
-    done.add(node);
+    nodeProps.set(node, props);
 
     if (node instanceof HTMLElement) {
       
@@ -161,9 +158,13 @@ export function templateByNode(template, props = {}) {
           const attribute = node.getAttribute(attributeName);
   
           if (attribute.includes('{{')) {
+            
             bindExpressions(attribute, (text) => {
               node.setAttribute(attributeName, text.trim().replace(/ +/, ' '))
             });
+
+          } else if (node.localName.includes('-') && props[attribute]) {
+            node.setAttribute(attributeName, `@parent.${attribute}`);
           }
         }
       }

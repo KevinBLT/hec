@@ -1,5 +1,5 @@
 import { isSignal } from "../signal.js";
-import { f, prop } from "../value.js";
+import { f, prop } from "../props.js";
 
 /** @type {{ [key: string]: (node: HTMLInputElement) => any }} */
 const valueByType = {

@@ -1,4 +1,5 @@
-import { signal } from "./signal.js";
+import { f, nodeProps, prop, propsOf } from "./props.js";
+import { isSignal, signal } from "./signal.js";
 
 /**
  * @template T
@@ -22,15 +23,23 @@ export function component(name, props, fn) {
     /** @type { {[R in keyof T]: import("./signal.js").Signal<T[R]>} } */// @ts-ignore
     #signals = Object.fromEntries(Object.entries(props).map(e => [e[0], signal(e[1])]));
 
+    /** @type { AbortController[] } */
+    #aborts = [];
+
+    /** @type {{ [key: string]: AbortController }} */
+    #parentSignalAborts = {};
+
     connectedCallback() {
       const shadow  = this.attachShadow({ mode: 'open' }),
-            node    = fn(this.#signals);
+            node    = fn(this.#signals),
+            abort   = new AbortController();
 
       /** @param { Node } node */
       const append = (node) => {
-        shadow.append(node);
-        this.dispatchEvent(new CustomEvent('::mount'));
+        nodeProps.set(this, propsOf(node));
 
+        shadow.append(node);
+        
         for (const k in this.#signals) {
           
           if (!this.hasAttribute(k)) {
@@ -39,18 +48,36 @@ export function component(name, props, fn) {
 
           this.#signals[k].subscribe({ 
             next: v => this.setAttribute(k, v.toString()) 
-          });
+          }, { signal: abort.signal });
         }
+
+        this.#aborts.push(abort);
+
+        this.dispatchEvent(new CustomEvent('::mount'));
       }
 
       node instanceof Promise ? node.then(append) : append(node);
     }
 
     disconnectedCallback() {
+      nodeProps.delete(this);
+
+      while (this.#aborts.length) {
+        this.#aborts.pop().abort();
+      }
+
+      for (const k in this.#parentSignalAborts) {
+        this.#parentSignalAborts[k].abort();
+        delete this.#parentSignalAborts[k];
+      }
+
       this.dispatchEvent(new CustomEvent('::unmount'));
     }
 
-    /** @param { string} key */
+    /** 
+     * @param { string } key 
+     * @returns { [ any, import("./signal.js").Signal<any> ] }
+     */
     #propSignalByLowerKey(key = '') {
       key = key.toLowerCase();
 
@@ -60,7 +87,7 @@ export function component(name, props, fn) {
         }
       }
 
-      return [];
+      return [ null, null];
     }
 
     /**
@@ -69,9 +96,28 @@ export function component(name, props, fn) {
      * @param { string } value 
      */
     attributeChangedCallback(name, _, value) {
-      const [ prop, signal ] = this.#propSignalByLowerKey(name);
+      const [ p, signal ] = this.#propSignalByLowerKey(name);
 
-      if (typeof prop == 'number') {
+      if (value.startsWith('@parent.')) { // @ts-ignore
+        const parent      = this.parentNode.host || this.parentNode,
+              parentProps = propsOf(parent),
+              parentProp  = prop(parentProps, value.slice(8));
+
+        if (isSignal(parentProp)) {
+          this.#parentSignalAborts[p]?.abort(); 
+          this.#parentSignalAborts[p] = new AbortController();
+          
+          signal(f(parentProp));
+          
+          parentProp.subscribe({ next: signal }, {
+            signal: this.#parentSignalAborts[p].signal
+          });
+
+        } else {
+          signal(parentProp);
+        }
+              
+      } else if (typeof p == 'number') {
         // @ts-ignore
         signal(parseFloat(value));
       } else {
