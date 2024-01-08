@@ -2,19 +2,17 @@ import { component, resource, templateByString } from '../../lib/index.js';
 
 component('my-beer', {}, () => {
 
-  const beer = resource(
-    () => fetch('https://random-data-api.com/api/v2/beers').then(r => r.json())
-  );
+  const beer = resource(() => fetch('https://random-data-api.com/api/v2/beers').then(r => r.json()));
 
-  const jsonText = beer.value.map(e => e && JSON.stringify(e, null, 2));
+  const jsonText = beer.map(e => e && JSON.stringify(e, null, 2));
   
   return templateByString(`
     <div>
       <p>Is the beer still loading? - Someone drunk: "{{ beer.loading }}!"</p>
-      <div data-if="beer.value">
-        You can enjoy: {{ beer.value.name }}, {{ beer.value.style }} by {{ beer.value.brand }}
+      <div data-if="beer">
+        You can enjoy: {{ beer.name }}, {{ beer.style }} by {{ beer.brand }}
       </div>
-      <pre data-if="beer.value">
+      <pre data-if="beer">
         {{ jsonText }}
       </pre>
     </div>

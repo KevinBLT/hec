@@ -16,7 +16,9 @@ export function prop(props, key) {
 
   for (const p of chain) {
 
-    if (props?.subscribe) {
+    if (['loading', 'error'].includes(p) && props?.loading && props?.error) {
+      return props[p];
+    } else if (props?.subscribe) {
       // TODO: Handle nested signals?
       props = props.map((e) => e && e[p]);
     } else if (typeof props === 'function') {

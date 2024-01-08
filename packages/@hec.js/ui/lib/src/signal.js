@@ -120,17 +120,16 @@ export function memo(fn, signals = []) {
 /**
  * @template T
  * @typedef {{ 
- *   value: Signal<T>, 
  *   error: Signal<null | string>,
  *   loading: Signal<boolean>,
  *   refetch: () => Promise<T | undefined>
- * }} Resource 
+ * } & Signal<T>} AsyncSignal 
  */
 
 /** 
  * @template T
  * @param { () => Promise<T> } fetch 
- * @returns { Resource<T> }
+ * @returns { AsyncSignal<T> }
  */
 export function resource(fetch) {
 
@@ -153,7 +152,7 @@ export function resource(fetch) {
 
   update();
 
-  return { value, loading, error, refetch: update };
+  return Object.assign(value, {loading, error, refetch: update });
 }
 
 /**
@@ -161,7 +160,7 @@ export function resource(fetch) {
  * @template T
  * @param { P } prop 
  * @param { (value: P) => Promise<T> } fetch 
- * @returns { Resource<T> }
+ * @returns { AsyncSignal<T> }
 */
 export function resourceBy(prop, fetch) {
   const r = resource(() => fetch(f(prop)));
