@@ -7,7 +7,8 @@
     "hec": "bin/hec.js",
     "hec-favicon": "bin/hec-favicon.js",
     "hec-icons": "bin/hec-icons.js",
-    "hec-font": "bin/hec-font.js"
+    "hec-font": "bin/hec-font.js",
+    "hec-component": "bin/hec-component.js"
   },
   "license": "MIT",
   "main": "./lib/index.js",
