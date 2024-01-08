@@ -1,11 +1,13 @@
 import { component, templateByName } from '../../lib/index.js';
 
-component('my-counter', { count: 0 }, ({ count }) => {
+component('my-counter', { count: 0, camelCase: '' }, ({ count, camelCase }) => {
 
   let isDown = false;
 
   const mousedown = async () => {
     isDown = true;
+
+    console.log(camelCase());
 
     while (isDown) {
       count(count() + 1);

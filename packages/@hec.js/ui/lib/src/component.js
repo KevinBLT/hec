@@ -17,7 +17,7 @@ import { signal } from "./signal.js";
 export function component(name, props, fn) {
 
   customElements.define(name, class extends HTMLElement {
-    static observedAttributes = Object.keys(props);
+    static observedAttributes = Object.keys(props).map(e => e.toLowerCase());
 
     /** @type { {[R in keyof T]: import("./signal.js").Signal<T[R]>} } */// @ts-ignore
     #signals = Object.fromEntries(Object.entries(props).map(e => [e[0], signal(e[1])]));
@@ -50,18 +50,33 @@ export function component(name, props, fn) {
       this.dispatchEvent(new CustomEvent('::unmount'));
     }
 
+    /** @param { string} key */
+    #propSignalByLowerKey(key = '') {
+      key = key.toLowerCase();
+
+      for (const k in this.#signals) {
+        if (k.toLowerCase() == key) {
+          return [ props[k], this.#signals[k] ];
+        }
+      }
+
+      return [];
+    }
+
     /**
      * @param { string } name 
      * @param { string } _ 
      * @param { string } value 
      */
     attributeChangedCallback(name, _, value) {
-      if (typeof props[name] == 'number') {
+      const [ prop, signal ] = this.#propSignalByLowerKey(name);
+
+      if (typeof prop == 'number') {
         // @ts-ignore
-        this.#signals[name](parseFloat(value));
+        signal(parseFloat(value));
       } else {
         // @ts-ignore
-        this.#signals[name](value);
+        signal(value);
       }
     }
 

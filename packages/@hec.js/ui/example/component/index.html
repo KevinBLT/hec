@@ -8,7 +8,7 @@
   </head>
   <body>
     
-    <my-counter data-for="let e of list" count="{{ e.count }}"></my-counter>
+    <my-counter data-for="let e of list" camelCase="{{ e.count }}" count="{{ e.count }}"></my-counter>
 
     <script type="module">
       import { templateByNode } from '../../lib/index.js';
