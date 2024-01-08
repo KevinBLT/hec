@@ -25,11 +25,16 @@ export function templateByName(name, props = {}) {
   let tmpl = document.querySelector(`template[data-name="${name}"]`);
 
   if (!tmpl) {
+    /** @type { HTMLMetaElement } */
+    const meta = document.querySelector('head meta[name="template-path"]');
+
     templatesLoading[name] ??= new Promise(async (resolve) => {
       tmpl = document.createElement('template');
 
       tmpl.dataset.name = name.toString();
-      tmpl.innerHTML = await fetch(name).then((r) => r.text());
+      tmpl.innerHTML = await fetch(
+        meta?.content?.replaceAll('[name]', name.toString()) ?? name
+      ).then((r) => r.text());
 
       document.body.append(tmpl);
 
