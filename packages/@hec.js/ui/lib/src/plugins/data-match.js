@@ -7,12 +7,16 @@ export const dataMatchPlugin = {
   run: (node) => {
 
     const className = node.dataset.match,
-          pathname  = new URL(
-            node.dataset.route || node.getAttribute('href'), location.href
-          ).pathname.replace(/index\.*[a-z0-9]*$/gm, '');
+          normalize = (v) => v.replace(/index\.*[a-z0-9]*$/gm, '');
+
+    function pathname() {
+      return normalize(
+        new URL(node.dataset.route || node.getAttribute('href'), location.href).pathname
+      );
+    } 
 
     const update = () => {
-      if (pathname == location.pathname.replace(/index\.*[a-z0-9]*$/gm, '')) {
+      if (pathname() == normalize(location.pathname)) {
         node.classList.add(className);
       } else {
         node.classList.remove(className);
@@ -20,6 +24,11 @@ export const dataMatchPlugin = {
     }
 
     route.subscribe({ next: update });
+
+    new MutationObserver(update).observe(node, { 
+      attributes: true, 
+      attributeFilter: ['href', 'data-route'] 
+    });
 
     update();    
 
