@@ -144,12 +144,13 @@ export function memo(fn, signals = [], value = null) {
 /** 
  * @template T
  * @param { () => Promise<T> } fetch 
+ * @param { T } initialValue 
  * @returns { AsyncSignal<T> }
  */
-export function resource(fetch) {
+export function resource(fetch, initialValue = null) {
 
   /** @type { Signal<T> } */
-  const value   = signal(null);
+  const value   = signal(initialValue);
   const loading = signal(true);
   const error   = signal(null);
 
@@ -174,11 +175,12 @@ export function resource(fetch) {
  * @template P
  * @template T
  * @param { P } prop 
- * @param { (value: P) => Promise<T> } fetch 
+ * @param { (value: P) => Promise<T> } fetch
+ * @param { T } initialValue 
  * @returns { AsyncSignal<T> }
 */
-export function resourceBy(prop, fetch) {
-  const r = resource(() => fetch(f(prop)));
+export function resourceBy(prop, fetch, initialValue = null) {
+  const r = resource(() => fetch(f(prop)), initialValue);
   
   if (isSignal(prop)) {
     prop.subscribe({ next: () => r.refetch() });
