@@ -23,22 +23,20 @@ export function component(name, props, fn) {
     /** @type { {[R in keyof T]: import("./signal.js").Signal<T[R]>} } */// @ts-ignore
     #signals = Object.fromEntries(Object.entries(props).map(e => [e[0], signal(e[1])]));
 
-    /** @type { AbortController[] } */
-    #aborts = [];
-
     /** @type {{ [key: string]: AbortController }} */
-    #parentSignalAborts = {};
+    #aborts = {};
 
     connectedCallback() {
       const shadow  = this.attachShadow({ mode: 'open' }),
-            node    = fn(this.#signals),
-            abort   = new AbortController();
+            node    = fn(this.#signals);
 
       /** @param { Node } node */
       const append = (node) => {
         nodeProps.set(this, propsOf(node));
 
         shadow.append(node);
+
+        this.#aborts['::attributes'] = new AbortController();
         
         for (const k in this.#signals) {
           
@@ -48,10 +46,9 @@ export function component(name, props, fn) {
 
           this.#signals[k].subscribe({ 
             next: v => this.setAttribute(k, v.toString()) 
-          }, { signal: abort.signal });
-        }
+          }, { signal: this.#aborts['::attributes'].signal });
 
-        this.#aborts.push(abort);
+        }
 
         this.dispatchEvent(new CustomEvent('::mount'));
       }
@@ -62,13 +59,9 @@ export function component(name, props, fn) {
     disconnectedCallback() {
       nodeProps.delete(this);
 
-      while (this.#aborts.length) {
-        this.#aborts.pop().abort();
-      }
-
-      for (const k in this.#parentSignalAborts) {
-        this.#parentSignalAborts[k].abort();
-        delete this.#parentSignalAborts[k];
+      for (const k in this.#aborts) {
+        this.#aborts[k].abort();
+        delete this.#aborts[k];
       }
 
       this.dispatchEvent(new CustomEvent('::unmount'));
@@ -104,13 +97,13 @@ export function component(name, props, fn) {
               parentProp  = prop(parentProps, value.slice(8));
 
         if (isSignal(parentProp)) {
-          this.#parentSignalAborts[p]?.abort(); 
-          this.#parentSignalAborts[p] = new AbortController();
+          this.#aborts[p]?.abort(); 
+          this.#aborts[p] = new AbortController();
           
           signal(f(parentProp));
           
           parentProp.subscribe({ next: signal }, {
-            signal: this.#parentSignalAborts[p].signal
+            signal: this.#aborts[p].signal
           });
 
         } else {
