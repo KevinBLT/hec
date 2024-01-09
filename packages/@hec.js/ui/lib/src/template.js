@@ -141,6 +141,10 @@ export function templateByNode(template, props = {}) {
   const findExpression = (node) => {
     const parentNode = node.parentNode;
 
+    if (node.nodeName == '#document-fragment') {
+      nodeProps.set(node, props);
+    }
+
     if (node instanceof HTMLElement) {
       
       nodeProps.set(node, props);
