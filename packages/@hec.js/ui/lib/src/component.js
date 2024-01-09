@@ -54,6 +54,7 @@ export function component(name, props, fn) {
 
       if (this.hasAttribute('data-lazy') && hidden) {
         await notifyVisible(this, hidden);
+        this.removeAttribute('data-lazy');
       }
 
       this.dispatchEvent(new CustomEvent('::load', { bubbles: true }));

@@ -15,17 +15,29 @@ export const dataLazyPlugin = {
     
     loaded.add(node);
 
-    const hidden = node.closest('[hidden]');
+    const hidden    = node.closest('[hidden]'),
+          className = node.dataset.lazy;
 
     const execute = () => {
+      
       for (const child of node.childNodes) {
         templateByNode(child, props);
       }
+
+      node.removeAttribute('data-lazy');
     }
 
     if (hidden) {
+
+      if (className) {
+        node.addEventListener('::load',   () => node.classList.add(className),    { once: true });
+        node.addEventListener('::loaded', () => node.classList.remove(className), { once: true });
+      }
+  
       notifyVisible(node, hidden).then(execute);
       stopTemplate();
+    } else {
+      node.removeAttribute('data-lazy');
     }
   }
 }

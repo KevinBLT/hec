@@ -35,6 +35,9 @@ export const dataIncludePlugin = {
         for (const child of node.childNodes) {
           templateByNode(child, props);
         }
+
+        node.removeAttribute('data-include');
+        node.removeAttribute('data-lazy');
       }
     }
 

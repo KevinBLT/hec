@@ -1,3 +1,4 @@
+import { dataMatchPlugin } from "./plugins/data-match.js";
 import { dataBindPlugin } from "./plugins/data-bind.js";
 import { dataForPlugin } from "./plugins/data-for.js";
 import { dataIfPlugin } from "./plugins/data-if.js";
@@ -28,4 +29,5 @@ export const plugins = [
   dataOnPlugin,
   dataBindPlugin,
   dataLazyPlugin,
+  dataMatchPlugin,
 ];

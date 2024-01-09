@@ -14,6 +14,7 @@ import { f } from "./props.js";
  *   subscribe : (functions: Subscriber<T>, options?: { signal: AbortSignal }) => void,
  *   map       : <V>(fn: (value: T) => V) => Signal<V>
  *   filter    : (fn: (value: T) => boolean) => Signal<T>
+ *   set       : (value: T) => void
  *   update    : (value: T) => void
  * } & ((newValue?: T | undefined) => T) } Signal
  */
@@ -67,6 +68,7 @@ export function signal(value = null, options = {}) {
   return Object.assign(getset, {
     signal: options.name ?? '',
     toString: () => value.toString(),
+    set: (v) => value = v,
     update,
     subscribe,
 
@@ -76,12 +78,11 @@ export function signal(value = null, options = {}) {
      * @returns { Signal<V> } 
      */
     map: (fn) => {
-
       const mapped = signal(fn(value));
 
       subscribe({ next: (v) => mapped(fn(v)) });
 
-      return mapped;
+      return Object.assign({ set: () => null, mapped });
     },
 
     /**
@@ -93,7 +94,7 @@ export function signal(value = null, options = {}) {
    
       subscribe({ next: (v) => fn(v) ? filtered(v) : null });
 
-      return filtered;
+      return Object.assign({ set: () => null, filtered });
     }
   });
 }
