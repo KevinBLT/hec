@@ -19,6 +19,10 @@ const lazy = async () => {
 
 lazy();
 
+
+document.body.addEventListener('::load', (ev) => console.log(ev));
+document.body.addEventListener('::loaded', (ev) => console.log(ev));
+
 templateByNode(document.body, p);
 
 component('my-test', {}, () => templateByString(new Date().toJSON()));

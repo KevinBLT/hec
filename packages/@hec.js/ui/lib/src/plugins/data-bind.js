@@ -10,7 +10,7 @@ const valueByType = {
   ['']:     (node) => node.value 
 }
 
-/** @type {{ select: string, run: (node: HTMLInputElement, props: {[key: string]: any}) => void }} */
+/** @type { import("../plugins.js").Plugin<HTMLInputElement> } */
 export const dataBindPlugin = {
   select: '[data-bind],[name]',
 

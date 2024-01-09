@@ -1,8 +1,6 @@
 const loaded = new WeakSet();
 
-/**
- * @type { import("../plugins.js").Plugin }
- */
+/** @type { import("../plugins.js").Plugin } */
 export const dataPreloadPlugin = {
   select: '[data-preload]',
 

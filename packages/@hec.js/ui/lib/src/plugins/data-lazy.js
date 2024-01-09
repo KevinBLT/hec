@@ -3,9 +3,7 @@ import { templateByNode } from '../template.js';
 
 const loaded = new WeakSet();
 
-/**
- * @type { import("../plugins.js").Plugin }
- */
+/** @type { import("../plugins.js").Plugin } */
 export const dataLazyPlugin = {
   select: '[data-lazy]',
 

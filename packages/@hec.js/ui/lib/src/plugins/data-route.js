@@ -16,9 +16,7 @@ const joinsRoutes = (node) => {
   return route.replaceAll(/\/+/g, '/');
 }
 
-/**
- * @type { import("../plugins.js").Plugin }
- */
+/** @type { import("../plugins.js").Plugin } */
 export const dataRoutePlugin = {
   select: '[data-route]',
 

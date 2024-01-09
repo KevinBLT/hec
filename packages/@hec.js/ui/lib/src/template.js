@@ -81,7 +81,7 @@ export function templateByNode(template, props = {}) {
       text = sourceText;
 
       for (const exp of expressions) {
-        text = text.replace(exp.text, f(exp.value));
+        text = text.replace(exp.text, f(exp.value) ?? '');
       }
 
       return text;

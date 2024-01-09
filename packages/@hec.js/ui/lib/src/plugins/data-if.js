@@ -1,9 +1,7 @@
 import { isSignal } from "../signal.js";
 import { f, prop } from "../props.js";
 
-/**
- * @type { import("../plugins.js").Plugin }
- */
+/** @type { import("../plugins.js").Plugin } */
 export const dataIfPlugin = {
   select: '[data-if]',
 

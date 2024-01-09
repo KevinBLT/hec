@@ -11,10 +11,23 @@ import { isSignal, signal } from "./signal.js";
  */
 
 /**
+ * @typedef { { 
+ *   on: (
+ *     eventName: string, 
+ *     fn: (event: Event) => void, 
+ *     options: boolean | AddEventListenerOptions
+ *   ) => void 
+ * } & HTMLElement } Component
+ */
+
+/**
  * @template T
  * @param { string } name 
  * @param { T } props 
- * @param { (props: {[R in keyof T]: import("./signal.js").Signal<T[R]>}) => Node | Promise<Node> } fn 
+ * @param { (
+ *   props: {[R in keyof T]: import("./signal.js").Signal<T[R]>}, 
+ *   self: Component
+ * ) => Node | Promise<Node> } fn 
  */
 export function component(name, props, fn) {
 
@@ -27,6 +40,15 @@ export function component(name, props, fn) {
     /** @type {{ [key: string]: AbortController }} */
     #aborts = {};
 
+    /**
+     * @param { string } eventName 
+     * @param { (event: Event) => void } callback 
+     * @param { boolean | AddEventListenerOptions } options
+     */
+    on(eventName, callback, options = null) {
+      this.addEventListener(eventName, callback, options);
+    }
+
     async connectedCallback() {
       const hidden = this.closest('[hidden]');
 
@@ -34,12 +56,16 @@ export function component(name, props, fn) {
         await notifyVisible(this, hidden);
       }
 
-      const shadow  = this.attachShadow({ mode: 'open' }),
-            node    = fn(this.#signals);
+      this.dispatchEvent(new CustomEvent('::load', { bubbles: true }));
+
+      const shadow = this.attachShadow({ mode: 'open' }),
+            node   = fn(this.#signals, this);
 
       /** @param { Node } node */
       const append = (node) => {
         nodeProps.set(this, propsOf(node));
+
+        this.dispatchEvent(new CustomEvent('::loaded', { bubbles: true }));
 
         shadow.append(node);
 
@@ -54,7 +80,6 @@ export function component(name, props, fn) {
           this.#signals[k].subscribe({ 
             next: v => this.setAttribute(k, v.toString()) 
           }, { signal: this.#aborts['::attributes'].signal });
-
         }
 
         this.dispatchEvent(new CustomEvent('::mount'));

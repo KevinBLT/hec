@@ -8,13 +8,17 @@ import { dataPreloadPlugin } from "./plugins/data-preload.js";
 import { dataRoutePlugin } from "./plugins/data-route.js";
 
 /**
+ * @template [T=HTMLElement]
  * @typedef {{
  *   select: string,
- *   run: (node: HTMLElement, props: {[key: string]: any}, stopTemplate: () => void) => void
+ *   run: (node: T, props: {[key: string]: any}, stopTemplate: () => void) => void
  * }} Plugin
- * 
- * 
-/** @type { Plugin[] } */
+ */
+
+/** 
+ * @template [T=HTMLElement]
+ * @type { Plugin<HTMLElement | HTMLInputElement>[] } 
+ */
 export const plugins = [ 
   dataForPlugin,
   dataRoutePlugin,

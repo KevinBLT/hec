@@ -4,9 +4,7 @@ import { f, prop } from "../props.js";
 
 const done = new WeakSet();
 
-/**
- * @type { import("../plugins.js").Plugin }
- */
+/** @type { import("../plugins.js").Plugin } */
 export const dataForPlugin = {
   select: '[data-for]',
   
