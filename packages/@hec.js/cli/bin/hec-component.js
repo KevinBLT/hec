@@ -5,8 +5,9 @@ import { mkdir, writeFile } from 'fs/promises';
 import args from 'args';
 import path from 'path';
 
-args.option(['r', 'root'],    'Root path for component"', './');
+args.option(['r', 'root'], 'Root path for component"', './');
 args.option(['w', 'web-dir'], 'Include path for component"', './');
+args.option(['m', 'name-pattern'], 'Name pattern for template name', '[name]');
 
 const options  = args.parse(process.argv),
       root     = options.root,
@@ -17,7 +18,7 @@ const options  = args.parse(process.argv),
 
         component('${name}', {}, () => {
 
-          return templateByName('${name}');
+          return templateByName('${options.m.replaceAll('[name]', name)}');
         });
       `.replaceAll('        ', '');
 
