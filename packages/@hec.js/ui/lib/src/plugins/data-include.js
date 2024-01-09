@@ -17,7 +17,7 @@ export const dataIncludePlugin = {
     
     loaded.add(node);
 
-    const hidden = node.closest('[hidden]');
+    const hidden = node.hasAttribute('data-lazy') && node.closest('[hidden]');
 
     const execute = async () => {
       const response = await fetch(node.dataset.include, {

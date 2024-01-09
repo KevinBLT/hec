@@ -1,3 +1,4 @@
+import { notifyVisible } from "./notify/visible.js";
 import { f, nodeProps, prop, propsOf } from "./props.js";
 import { isSignal, signal } from "./signal.js";
 
@@ -26,7 +27,13 @@ export function component(name, props, fn) {
     /** @type {{ [key: string]: AbortController }} */
     #aborts = {};
 
-    connectedCallback() {
+    async connectedCallback() {
+      const hidden = this.closest('[hidden]');
+
+      if (this.hasAttribute('data-lazy') && hidden) {
+        await notifyVisible(this, hidden);
+      }
+
       const shadow  = this.attachShadow({ mode: 'open' }),
             node    = fn(this.#signals);
 
@@ -53,7 +60,7 @@ export function component(name, props, fn) {
         this.dispatchEvent(new CustomEvent('::mount'));
       }
 
-      node instanceof Promise ? node.then(append) : append(node);
+      append(node instanceof Promise ? await node : node);
     }
 
     disconnectedCallback() {

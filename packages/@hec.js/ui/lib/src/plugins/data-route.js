@@ -13,7 +13,7 @@ const joinsRoutes = (node) => {
     }
   }
 
-  return route
+  return route.replaceAll(/\/+/g, '/');
 }
 
 /**

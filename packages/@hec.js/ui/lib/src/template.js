@@ -19,7 +19,7 @@ export function templateByName(name, props = {}) {
   }
 
   /** @type { HTMLTemplateElement } */
-  let tmpl = document.querySelector(`template[data-name="${name}"]`);
+  let tmpl = document.querySelector(`template[id="${name}"]`);
 
   if (!tmpl) {
     /** @type { HTMLMetaElement } */
@@ -28,7 +28,7 @@ export function templateByName(name, props = {}) {
     templatesLoading[name] ??= new Promise(async (resolve) => {
       tmpl = document.createElement('template');
 
-      tmpl.dataset.name = name.toString();
+      tmpl.setAttribute('id', name.toString());
       tmpl.innerHTML = await fetch(
         meta?.content?.replaceAll('[name]', name.toString()) ?? name
       ).then((r) => r.text());
@@ -139,7 +139,7 @@ export function templateByNode(template, props = {}) {
 
   /** @param { Node } node */
   const findExpression = (node) => {
-    const parentNode = node.parentNode;
+    let stopFlag = false;
 
     if (node.nodeName == '#document-fragment') {
       nodeProps.set(node, props);
@@ -151,25 +151,27 @@ export function templateByNode(template, props = {}) {
 
       for (const plugin of plugins) {
         if (node.matches(plugin.select)) {
-          plugin.run(node, props);
+          plugin.run(node, props, () => stopFlag = true);
         }
       }
 
-      if (parentNode === node.parentNode) {
-        const attributeNames = node.getAttributeNames();
-        
-        for (const attributeName of attributeNames) {
-          const attribute = node.getAttribute(attributeName);
-  
-          if (attribute.includes('{{')) {
-            
-            bindExpressions(attribute, (text) => {
-              node.setAttribute(attributeName, text.trim().replace(/ +/, ' '))
-            });
+      if (stopFlag) {
+        return;
+      }
 
-          } else if (node.localName.includes('-') && props[attribute]) {
-            node.setAttribute(attributeName, `@parent.${attribute}`);
-          }
+      const attributeNames = node.getAttributeNames();
+        
+      for (const attributeName of attributeNames) {
+        const attribute = node.getAttribute(attributeName);
+
+        if (attribute.includes('{{')) {
+          
+          bindExpressions(attribute, (text) => {
+            node.setAttribute(attributeName, text.trim().replace(/ +/, ' '))
+          });
+
+        } else if (node.localName.includes('-') && props[attribute]) {
+          node.setAttribute(attributeName, `@parent.${attribute}`);
         }
       }
       
@@ -177,10 +179,8 @@ export function templateByNode(template, props = {}) {
       bindExpressions(node.textContent, (text) => (node.textContent = text));
     }
 
-    if (parentNode === node.parentNode) {
-      for (const child of node.childNodes) {
-        findExpression(child);
-      }
+    for (const child of node.childNodes) {
+      findExpression(child);
     }
   };
 

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>hec.js :: Plugins</title>
+    <script type="module" defer src="./lazy.js"></script>
+
+  </head>
+  <body hidden>
+
+    <div>The parts will lazy load...</div>
+
+    <div data-lazy>
+      <div>Inline 1 {{ name }}</div>
+    </div>
+
+    <div hidden data-lazy>
+      <div>Inline 2 {{ name }}</div>
+
+      <div hidden>
+        <div>Inline 3 {{ name }}</div>
+
+        <div hidden>
+          Inline 4 {{ name }}
+        </div>  
+
+        <my-test data-lazy></my-test>
+
+        <div data-lazy data-include="include.html"></div>
+      </div>  
+
+      <div data-lazy data-include="include.html"></div>
+    </div>
+
+    <div hidden data-lazy data-include="include.html"></div>
+    <my-test hidden data-lazy></my-test>
+  </body>
+</html>

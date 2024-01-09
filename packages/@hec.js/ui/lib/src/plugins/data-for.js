@@ -10,7 +10,7 @@ const done = new WeakSet();
 export const dataForPlugin = {
   select: '[data-for]',
   
-  run: (node, props) => {
+  run: (node, props, stopTemplate) => {
 
     if (done.has(node)) {
       return;
@@ -62,5 +62,7 @@ export const dataForPlugin = {
     if (isSignal(list)) {
       list.subscribe({next: update}); 
     }
+
+    stopTemplate();
   }
 }
