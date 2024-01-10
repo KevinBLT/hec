@@ -49,10 +49,18 @@ export function component(name, props, fn) {
       this.addEventListener(eventName, callback, options);
     }
 
+    /**
+     * @param { string } selector 
+     * @returns { Element | undefined }
+     */
     querySelector(selector) {
       return this.shadowRoot.querySelector(selector);
     }
 
+    /**
+     * @param { string } selector 
+     * @returns { NodeListOf<Element> | undefined }
+     */
     querySelectorAll(selector) {
       return this.shadowRoot.querySelectorAll(selector);
     }
@@ -72,8 +80,6 @@ export function component(name, props, fn) {
 
       /** @param { Node } node */
       const append = (node) => {
-        console.log(this.localName);
-
         setPropsOf(this, propsOf(node));
 
         this.dispatchEvent(new CustomEvent('::loaded', { bubbles: true }));
