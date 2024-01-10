@@ -4,3 +4,4 @@ export * from './src/pipes.js';
 export * from './src/expression.js';
 export * from './src/signal.js';
 export * from './src/component.js';
+export * from './src/props.js';

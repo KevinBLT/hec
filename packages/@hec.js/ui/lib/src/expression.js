@@ -10,7 +10,7 @@ export function expression(text) {
           meta: {},
           text: text,
           prop: null
-        }
+        };
 
   for (const e of parts) {
     if (e[1].includes('=')) {
