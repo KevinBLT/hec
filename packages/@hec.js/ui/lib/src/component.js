@@ -1,5 +1,5 @@
 import { notifyVisible } from "./notify/visible.js";
-import { f, nodeProps, prop, propsOf } from "./props.js";
+import { deletePropsOf, f, prop, propsOf, setPropsOf } from "./props.js";
 import { isSignal, signal } from "./signal.js";
 
 /**
@@ -72,11 +72,9 @@ export function component(name, props, fn) {
 
       /** @param { Node } node */
       const append = (node) => {
-        const exProps = nodeProps.get(this);
-        
-        nodeProps.set(
-          this, Object.assign(propsOf(node), (typeof exProps === 'object' ? exProps : null) ?? {})
-        );
+        console.log(this.localName);
+
+        setPropsOf(this, propsOf(node));
 
         this.dispatchEvent(new CustomEvent('::loaded', { bubbles: true }));
 
@@ -84,7 +82,7 @@ export function component(name, props, fn) {
 
         this.#aborts['::attributes'] = new AbortController();
         
-        for (const k in this.#signals) {
+        for (const k in props) {
           
           if (!this.hasAttribute(k)) {
             this.setAttribute(k, props[k].toString());
@@ -102,7 +100,7 @@ export function component(name, props, fn) {
     }
 
     disconnectedCallback() {
-      nodeProps.delete(this);
+      deletePropsOf(this);
 
       for (const k in this.#aborts) {
         this.#aborts[k].abort();
@@ -138,8 +136,8 @@ export function component(name, props, fn) {
 
       if (value.startsWith('@parent.')) { // @ts-ignore
         const parent      = this.parentNode.host || this.parentNode,
-              parentProps = propsOf(parent),
-              parentProp  = prop(parentProps, value.slice(8));
+              key         = value.slice(8),
+              parentProp  = prop(propsOf(parent), key) ?? prop(propsOf(this), key);
 
         if (isSignal(parentProp)) {
           this.#aborts[p]?.abort(); 

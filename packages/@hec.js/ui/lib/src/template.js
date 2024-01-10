@@ -2,7 +2,7 @@ import { expression } from './expression.js';
 import { pipes } from './pipes.js';
 import { plugins } from './plugins.js';
 import { isSignal } from './signal.js';
-import { f, nodeProps, prop } from './props.js';
+import { f, setPropsOf, prop, hasProp } from './props.js';
 
 /** @type {{ [key: string]: Promise<HTMLTemplateElement> }} */
 const templatesLoading = {}
@@ -62,10 +62,6 @@ export function templateByString(template, props = {}) {
  * @param { {[key: string]: any } } props
  */
 export function templateByNode(template, props = {}) {
-
-  if (nodeProps.has(template)) {
-    return;
-  }
 
   /**
    * @param { string } text
@@ -142,12 +138,12 @@ export function templateByNode(template, props = {}) {
     let stopFlag = false;
 
     if (node.nodeName == '#document-fragment') {
-      nodeProps.set(node, props);
+      setPropsOf(node, props);
     }
 
     if (node instanceof HTMLElement) {
       
-      nodeProps.set(node, props);
+      setPropsOf(node, props);
 
       for (const plugin of plugins) {
         if (node.matches(plugin.select)) {
@@ -170,7 +166,7 @@ export function templateByNode(template, props = {}) {
             node.setAttribute(attributeName, text.trim().replace(/ +/, ' '))
           });
 
-        } else if (node.localName.includes('-') && props[attribute]) {
+        } else if (node.localName.includes('-') && hasProp(props, attribute)) {
           node.setAttribute(attributeName, `@parent.${attribute}`);
         }
       }

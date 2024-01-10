@@ -49,7 +49,6 @@ export const dataForPlugin = {
               });
 
         done.add(c);
-    
         n.after(templateByNode(c, p));
         n = n.nextSibling;
       }

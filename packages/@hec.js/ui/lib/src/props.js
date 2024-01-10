@@ -4,10 +4,22 @@ import { isSignal, signal } from "./signal.js";
  * @template T
  * @type { WeakMap<Node, { [key: string]: any }> }
  */
-export const nodeProps = new WeakMap();
+const nodeProps = new WeakMap();
 
 /** @param { Node } node  */
 export const propsOf = (node) => nodeProps.get(node);
+export const deletePropsOf = (node) => nodeProps.delete(node);
+
+export const setPropsOf = (node, props) => {
+  const existing = propsOf(node);
+
+  if (existing && typeof existing === 'object' ) {
+    nodeProps.set(node, Object.assign(existing, props));
+  } else {
+    nodeProps.set(node, props);
+  }
+
+}
 
 /**
  * @param { any | function(): any} v 
@@ -63,10 +75,41 @@ export function prop(props, key) {
 
     } else if (typeof props === 'function') {
       props = f(props);
-    } else {
+    } else if (typeof props[p] !== 'undefined') {
       props = props[p];
+    } else {
+      return null;
     }
   }
 
   return props;
+}
+
+/**
+ * @param { {[key: string]: any} } props 
+ * @param { string } key 
+ * @returns { boolean }
+ */
+export function hasProp(props, key) {
+  const chain = key.split('.');
+
+  if (!key) {
+    return false;
+  }
+
+  for (const p of chain) {
+
+    if (['loading', 'error'].includes(p) && props?.loading && props?.error) {
+      return props[p];
+    } else if (typeof props === 'function') {
+      props = f(props);
+    } else if (typeof props[p] !== 'undefined') {
+      props = props[p];
+    } else {
+      return false;
+    }
+
+  }
+
+  return true;
 }
