@@ -49,6 +49,14 @@ export function component(name, props, fn) {
       this.addEventListener(eventName, callback, options);
     }
 
+    querySelector(selector) {
+      return this.shadowRoot.querySelector(selector);
+    }
+
+    querySelectorAll(selector) {
+      return this.shadowRoot.querySelectorAll(selector);
+    }
+
     async connectedCallback() {
       const hidden = this.closest('[hidden]');
 
@@ -64,7 +72,11 @@ export function component(name, props, fn) {
 
       /** @param { Node } node */
       const append = (node) => {
-        nodeProps.set(this, propsOf(node));
+        const exProps = nodeProps.get(this);
+        
+        nodeProps.set(
+          this, Object.assign(propsOf(node), (typeof exProps === 'object' ? exProps : null) ?? {})
+        );
 
         this.dispatchEvent(new CustomEvent('::loaded', { bubbles: true }));
 

@@ -82,7 +82,7 @@ export function signal(value = null, options = {}) {
 
       subscribe({ next: (v) => mapped(fn(v)) });
 
-      return Object.assign({ set: () => null, mapped });
+      return Object.assign(mapped, { set: () => null });
     },
 
     /**
@@ -94,7 +94,7 @@ export function signal(value = null, options = {}) {
    
       subscribe({ next: (v) => fn(v) ? filtered(v) : null });
 
-      return Object.assign({ set: () => null, filtered });
+      return Object.assign(filtered, { set: () => null });
     }
   });
 }
