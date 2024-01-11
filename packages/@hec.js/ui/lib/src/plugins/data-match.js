@@ -1,5 +1,18 @@
 import { route } from "../routing.js";
 
+/** @type { WeakMap<Node, () => void> } */
+const nodeUpdates = new WeakMap();
+
+const observer = new MutationObserver((records) => {
+  
+  for (const record of records) {
+    if (nodeUpdates.has(record.target)) {
+      nodeUpdates.get(record.target)();
+    }
+  }
+});
+
+
 /** @type { import("../plugins.js").Plugin } */
 export const dataMatchPlugin = {
   select: '[data-match]',
@@ -25,7 +38,9 @@ export const dataMatchPlugin = {
 
     route.subscribe({ next: update });
 
-    new MutationObserver(update).observe(node, { 
+    nodeUpdates.set(node, update);
+
+    observer.observe(node, { 
       attributes: true, 
       attributeFilter: ['href', 'data-route'] 
     });
