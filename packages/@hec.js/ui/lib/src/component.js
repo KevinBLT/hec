@@ -113,7 +113,7 @@ export function component(name, props, fn) {
       }
 
       if (this.shadowRoot) {
-        while (this.shadowRoot.childNodes) {
+        while (this.shadowRoot.childNodes.length) {
           this.shadowRoot.lastChild.remove();
         }
       }
