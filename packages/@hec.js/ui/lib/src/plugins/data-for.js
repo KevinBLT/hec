@@ -59,5 +59,7 @@ export const dataForPlugin = {
     if (isSignal(list)) {
       list.subscribe({next: update}); 
     }
+
+    stopTemplate();
   }
 }

@@ -152,11 +152,11 @@ export function templateByNode(template, props = {}) {
       for (const plugin of plugins) {
         if (node.matches(plugin.select)) {
           plugin.run(node, props, () => stopFlag = true);
+          
+          if (stopFlag) {
+            return;
+          }
         }
-      }
-
-      if (stopFlag) {
-        return;
       }
 
       const attributeNames = node.getAttributeNames();

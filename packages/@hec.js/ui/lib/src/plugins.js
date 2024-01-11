@@ -22,9 +22,9 @@ import { dataRoutePlugin } from "./plugins/data-route.js";
  */
 export const plugins = [ 
   dataForPlugin,
+  dataIncludePlugin,
   dataRoutePlugin,
   dataIfPlugin,
-  dataIncludePlugin,
   dataPreloadPlugin,
   dataOnPlugin,
   dataBindPlugin,
