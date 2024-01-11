@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>hec.js :: Classes</title>
+  </head>
+  <body>
+
+    <ul>
+      <li data-for="let e of list">Person: {{ e.name }}, {{ e.age }}yo</li>
+    </ul>
+
+    <script type="module">
+      import { templateByNode } from '../../lib/index.js';
+
+      class Person {
+        name = '';
+        birthYear = 0;
+
+        get age() {
+          return new Date().getFullYear() - this.birthYear;
+        }
+        
+        constructor(name, birthYear) {
+          this.name = name;
+          this.birthYear = birthYear;
+        }
+      }
+
+      templateByNode(document.body, {
+        list: [
+          new Person('Joey', Math.round(1970 + Math.random() * 40)),
+          new Person('Pascal', Math.round(1970 + Math.random() * 40)),
+          {
+            name: 'Claudia',
+            birthYear: Math.round(1970 + Math.random() * 40),
+            age() {
+              return new Date().getFullYear() - this.birthYear;
+            }
+          }
+        ],
+      });
+      
+    </script>
+  </body>
+</html>

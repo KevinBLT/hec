@@ -77,7 +77,13 @@ export function prop(props, key) {
     } else if (typeof props === 'function') {
       props = f(props);
     } else if (typeof props[p] !== 'undefined') {
-      props = props[p];
+
+      if (typeof props[p] === 'function' && !isSignal(props[p])) {
+        props = props[p].bind(props);
+      } else {
+        props = props[p];
+      }
+      
     } else {
       return null;
     }
