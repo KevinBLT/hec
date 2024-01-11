@@ -71,10 +71,16 @@ export function component(name, props, fn) {
       
       if (this.hasAttribute('data-lazy')) {
         await notifyVisible(this);
-        this.removeAttribute('data-lazy');
       }
 
       this.dispatchEvent(new CustomEvent('::load', { bubbles: true }));
+
+      if (this.#ready) {
+        this.dispatchEvent(new CustomEvent('::loaded', { bubbles: true }));
+        this.dispatchEvent(new CustomEvent('::mount'));
+        
+        return;
+      }
 
       const shadow = this.shadowRoot ?? this.attachShadow({ mode: 'open' }),
             node   = fn(this.#signals, this);
@@ -85,11 +91,9 @@ export function component(name, props, fn) {
 
         this.dispatchEvent(new CustomEvent('::loaded', { bubbles: true }));
 
-        if (!this.#ready) {
-          shadow.append(node);
-          this.#ready = true;
-        }
-
+        shadow.append(node);
+        
+        this.#ready = true;
         this.#aborts['::attributes'] = new AbortController();
         
         for (const k in props) {
