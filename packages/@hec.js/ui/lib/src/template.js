@@ -2,7 +2,7 @@ import { expression } from './expression.js';
 import { pipes } from './pipes.js';
 import { plugins } from './plugins.js';
 import { isSignal } from './signal.js';
-import { f, setPropsOf, prop, hasProp } from './props.js';
+import { f, setPropsOf, prop, hasProp, hasProps } from './props.js';
 
 /** @type {{ [key: string]: Promise<HTMLTemplateElement> }} */
 const templatesLoading = {}
@@ -136,6 +136,10 @@ export function templateByNode(template, props = {}) {
   /** @param { Node } node */
   const findExpression = (node) => {
     let stopFlag = false;
+
+    if (hasProps(node)) {
+      return;
+    }
 
     if (node.nodeName == '#document-fragment') {
       setPropsOf(node, props);

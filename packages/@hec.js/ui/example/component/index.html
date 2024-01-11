@@ -14,7 +14,7 @@
       import { templateByNode } from '../../lib/index.js';
 
       templateByNode(document.body, {
-        list: Array.from({ length: 1 || Math.round(Math.random() * 100)}, () => (
+        list: Array.from({ length: Math.round(Math.random() * 100)}, () => (
           { count: Math.round(Math.random() * 0xffffff) })
         ),
       });

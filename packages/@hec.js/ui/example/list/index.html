@@ -30,7 +30,10 @@
     <a data-match="--active" href="../list/index.html">Current page: List</a>
     <a data-match="--active" href="../inline/index.html">Inline Page</a>
     <ul>
-      <li data-for="let color of colors" class="{{ color.class }}">{{ color.name }}</li>
+      <li data-for="let color of colors" class="{{ color.class }}">
+        <span>{{ color.name }}</span>
+        <span data-if="color.name"> A color!</span>
+      </li>
     </ul>
   </body>
 </html>

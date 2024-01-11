@@ -9,6 +9,7 @@ const nodeProps = new WeakMap();
 /** @param { Node } node  */
 export const propsOf = (node) => nodeProps.get(node);
 export const deletePropsOf = (node) => nodeProps.delete(node);
+export const hasProps = (node) => nodeProps.has(node);
 
 export const setPropsOf = (node, props) => {
   const existing = propsOf(node);
