@@ -19,6 +19,11 @@ import { f } from "./props.js";
  * } & ((newValue?: T | undefined) => T) } Signal
  */
 
+/** 
+ * @template T
+ * @typedef { (subcription: Subscriber<T>, options?: { signal: AbortSignal } | undefined) => void } SubscribeFn
+ */
+
 /**
  * @template T
  * @param { T } value 
@@ -48,10 +53,7 @@ export function signal(value = null, options = {}) {
     return value;
   }
 
-  /** 
-   * @param { Subscriber<T> } subscription 
-   * @param { { signal: AbortSignal } | undefined } options  
-   */
+  /** @type { SubscribeFn<T> } */
   const subscribe = (subscription, options = null) => {
     subscribers.push(subscription);
 
@@ -78,11 +80,22 @@ export function signal(value = null, options = {}) {
      * @returns { Signal<V> } 
      */
     map: (fn) => {
-      const mapped = signal(fn(value));
+      const mapped = signal(fn(value)),
+            abort  = new AbortController(),
+            sub    = mapped.subscribe;
 
-      subscribe({ next: (v) => mapped(fn(v)) });
+      subscribe({ next: (v) => mapped(fn(v)) }, { signal: abort.signal });
 
-      return Object.assign(mapped, { set: () => null });
+      return Object.assign(mapped, { 
+        set: () => null,
+
+        /** @type { SubscribeFn<V> } */
+        subscribe: (subscription, options) => {
+          sub(subscription, options);
+          options?.signal.addEventListener('abort', () => abort.abort());
+        }
+
+      });
     },
 
     /**

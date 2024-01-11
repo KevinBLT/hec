@@ -1,16 +1,39 @@
 import { signal, templateByNode } from "../../lib/index.js";
 import { generateRandomName } from "./util.js";
 
-const person = signal({
-  name: signal(generateRandomName())
-})
+
+function makeList() {
+  return Array.from({ length: 5 }, () => {
+    return signal({
+      name: signal(generateRandomName())
+    });
+  });
+}
+
+const persons = signal(makeList());
+
+const nextList = () => {
+  persons(makeList());
+}
+
+const nextPerson = () => {
+
+  for (const p of persons()) {
+    p({ name: signal(generateRandomName()) });
+  }
+
+}
 
 const nextName = () => {
-  person().name(generateRandomName());
+  for (const p of persons()) {
+    p().name(generateRandomName());
+  }
 }
 
 templateByNode(document.body, { 
-  person, 
+  persons,
+  nextList,
   nextName, 
-  nextPerson: () => person({ name: signal(generateRandomName()) }) 
+  nextPerson,
 });
+

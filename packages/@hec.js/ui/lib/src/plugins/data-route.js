@@ -21,18 +21,28 @@ export const dataRoutePlugin = {
   select: '[data-route]',
 
   run: (node) => {
-    const pattern = new URLPattern({pathname: joinsRoutes(node)});
+    const absoluteRoute = joinsRoutes(node),
+          pattern       = new URLPattern({pathname: absoluteRoute}),
+          placeholder   = document.createComment('route: ' + absoluteRoute);
 
+    node.replaceWith(placeholder);
+  
     const update = () => {
-      node.hidden = !pattern.test(location.href);
+      const href = location.href.replace(/index\.*[a-z0-9]*$/gm, '');
 
-      if (!node.hidden) {
+      if (pattern.test(href)) {
+        node.hidden = false;
+        placeholder.after(node);
+        
         /** @type { HTMLMetaElement } */
         const meta = document.querySelector('head meta[name="route"]');
 
         if (meta) {
           meta.content = pattern.pathname;
         }
+
+      } else {
+        node.remove();
       }
     }
 
