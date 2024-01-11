@@ -74,7 +74,7 @@ export function component(name, props, fn) {
 
       this.dispatchEvent(new CustomEvent('::load', { bubbles: true }));
 
-      const shadow = this.attachShadow({ mode: 'open' }),
+      const shadow = this.shadowRoot ?? this.attachShadow({ mode: 'open' }),
             node   = fn(this.#signals, this);
 
       /** @param { Node } node */
@@ -110,6 +110,12 @@ export function component(name, props, fn) {
       for (const k in this.#aborts) {
         this.#aborts[k].abort();
         delete this.#aborts[k];
+      }
+
+      if (this.shadowRoot) {
+        while (this.shadowRoot.childNodes) {
+          this.shadowRoot.lastChild.remove();
+        }
       }
 
       this.dispatchEvent(new CustomEvent('::unmount'));
