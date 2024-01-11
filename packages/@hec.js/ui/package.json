@@ -6,7 +6,7 @@
   "license": "MIT",
   "main": "./lib/index.js",
   "scripts": {
-    "build": "esbuild --minify --format=esm --bundle ./lib/index.js > ./dist/hec.min.js"
+    "build": "esbuild --minify --format=esm --bundle ./lib/index.js > ./dist/hec.esm.min.js && esbuild --minify --bundle ./lib/global.js > ./dist/hec.min.js"
   },
   "dependencies": {
     "@hec.js/ui": "file:./",

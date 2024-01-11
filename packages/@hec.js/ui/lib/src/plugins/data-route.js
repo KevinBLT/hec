@@ -20,7 +20,14 @@ const joinsRoutes = (node) => {
 export const dataRoutePlugin = {
   select: '[data-route]',
 
-  run: (node) => {
+  run: async (node) => {
+
+    /* -- Polyfill safari -- */
+    if (!('URLPattern' in window)) { // @ts-ignore
+      await import('https://kevinblt.github.io/hec/packages/@hec.js/ui/lib/src/plugins.js');
+    }
+    /* -- -- */
+
     const absoluteRoute = joinsRoutes(node),
           pattern       = new URLPattern({pathname: absoluteRoute}),
           placeholder   = document.createComment('route: ' + absoluteRoute);
