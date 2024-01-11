@@ -71,13 +71,14 @@ export function templateByNode(template, props = {}) {
 
     /** @type {import("./expression.js").Expression[]} */
     let expressions = text.match(/{{[^}]+}}/g).map(expression),
-      sourceText = text;
+        sourceText  = text;
 
     const evaluate = () => {
       text = sourceText;
 
       for (const exp of expressions) {
-        text = text.replace(exp.text, f(exp.value) ?? '');
+        const v = f(exp.value);
+        text = text.replace(exp.text, v ?? '<null>');
       }
 
       return text;
@@ -166,7 +167,14 @@ export function templateByNode(template, props = {}) {
         if (attribute?.includes('{{')) {
           
           bindExpressions(attribute, (text) => {
-            node.setAttribute(attributeName, text.trim().replace(/ +/, ' '))
+            text = text.trim().replace(/ +/, ' ');
+
+            if (text === '<null>') {
+              node.removeAttribute(attributeName);
+            } else {
+              node.setAttribute(attributeName, text);
+            }
+
           });
 
         } else if (node.localName.includes('-') && hasProp(props, attribute)) {
@@ -175,7 +183,20 @@ export function templateByNode(template, props = {}) {
       }
       
     } else if (node instanceof Text && node.textContent.includes('{{')) {
-      bindExpressions(node.textContent, (text) => (node.textContent = text));
+      const parts = node.textContent.split(/{{|}}/g);
+
+      for (let i = 0, last = node, text; i < parts.length; i++) {
+        text = document.createTextNode(parts[i]);
+
+        if ((i % 2) != 0) {
+          bindExpressions(`{{${parts[i]}}}`, (v) => text.data = v.replaceAll('<null>', ''));
+        }
+
+        last.after(text);
+        last = text;
+      }
+
+      node.remove();
     }
 
     for (const child of node.childNodes) {

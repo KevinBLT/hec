@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>hec.js :: Inline</title>
+  </head>
+  <body>
+
+    <ul>
+      <li data-name="{{ e.name }}" data-for="let e of list">Person: {{ e.name }}</li>
+    </ul>
+
+    <script type="module">
+      import { templateByNode } from '../../lib/index.js';
+
+      templateByNode(document.body, {
+        list: [
+          { name: 'Joey' },
+          { name: 'Pascal' },
+          { name: null },
+        ],
+      });
+    </script>
+  </body>
+</html>
