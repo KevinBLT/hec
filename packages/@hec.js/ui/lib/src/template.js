@@ -33,6 +33,22 @@ export function templateByName(name, props = {}) {
         meta?.content?.replaceAll('[name]', name.toString()) ?? name
       ).then((r) => r.text());
 
+      /** @type { NodeListOf<HTMLLinkElement> } */
+      const cssLinks = tmpl.content.querySelectorAll('link[rel="stylesheet"][href]'),
+            cssLoads = [];
+
+      for (const link of cssLinks) {
+        cssLoads.push(fetch(link.href).then(r => r.text()).then((css) => {
+          const style = document.createElement('style');
+
+          style.innerHTML = css;
+
+          link.replaceWith(style);
+        }));
+      }
+
+      await Promise.all(cssLoads);
+
       document.body.append(tmpl);
 
       resolve(tmpl);
