@@ -40,6 +40,8 @@ export function component(name, props, fn) {
     /** @type {{ [key: string]: AbortController }} */
     #aborts = {};
 
+    #ready = false;
+
     /**
      * @param { string } eventName 
      * @param { (event: Event) => void } callback 
@@ -83,7 +85,10 @@ export function component(name, props, fn) {
 
         this.dispatchEvent(new CustomEvent('::loaded', { bubbles: true }));
 
-        shadow.append(node);
+        if (!this.#ready) {
+          shadow.append(node);
+          this.#ready = true;
+        }
 
         this.#aborts['::attributes'] = new AbortController();
         
@@ -110,12 +115,6 @@ export function component(name, props, fn) {
       for (const k in this.#aborts) {
         this.#aborts[k].abort();
         delete this.#aborts[k];
-      }
-
-      if (this.shadowRoot) {
-        while (this.shadowRoot.childNodes.length) {
-          this.shadowRoot.lastChild.remove();
-        }
       }
 
       this.dispatchEvent(new CustomEvent('::unmount'));
