@@ -1,14 +1,14 @@
 import { notifyVisible } from '../notify/visible.js';
 import { templateByNode } from '../template.js';
 
-const loaded = new WeakSet();
+export const loaded = new WeakSet();
 
 /** @type { import("../plugins.js").Plugin } */
 export const dataIncludePlugin = {
   select: '[data-include]',
 
   run: (node, props) => {
-    
+
     if (loaded.has(node) || node.children.length) {
       return;
     }
@@ -41,8 +41,8 @@ export const dataIncludePlugin = {
       }
     }
 
-    if (hidden) {
-      notifyVisible(node, hidden).then(execute);
+    if (node.hasAttribute('data-lazy')) {
+      notifyVisible(node).then(execute);
     } else {
       execute();
     }    

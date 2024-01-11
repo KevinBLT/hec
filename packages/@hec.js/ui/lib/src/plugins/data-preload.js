@@ -1,3 +1,6 @@
+import { notifyVisible } from "../notify/visible.js";
+import { preload } from "../preload.js";
+
 const loaded = new WeakSet();
 
 /** @type { import("../plugins.js").Plugin } */
@@ -9,25 +12,26 @@ export const dataPreloadPlugin = {
     if (loaded.has(node) || node.hidden) {
       return;
     }
-    
+
     loaded.add(node);
 
-    const hrefs = node.dataset.preload.split(',');
-
-    const addLink = (href, as) => {
-      const link = document.createElement('link');
-
-      link.rel  = 'preload';
-      link.as   = as;
-      link.href = href;
-  
-      document.head.append(link);
-    }
+    const execute = () => {
+      const hrefs = node.dataset.preload.split(',');
     
-    for (const href of hrefs) {
-      const v = href.split(':');
-
-      addLink(v[0], v[1] ?? 'fetch');
+      for (const href of hrefs) {
+        const v = href.split(':');
+  
+        preload({
+          href: v[0], 
+          as: v[1] ?? 'fetch',
+        });
+      }
     }
+
+    if (node.hasAttribute('data-lazy')) {
+      notifyVisible(node).then(execute);
+    } else {
+      execute();
+    }  
   }
 }

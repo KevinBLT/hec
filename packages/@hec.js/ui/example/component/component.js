@@ -2,6 +2,8 @@ import { component, templateByName } from '../../lib/index.js';
 
 component('my-counter', { count: 0, camelCase: '' }, ({ count, camelCase }) => {
 
+  console.log('EXECUTE')
+
   let isDown = false;
 
   const mousedown = async () => {
@@ -16,8 +18,7 @@ component('my-counter', { count: 0, camelCase: '' }, ({ count, camelCase }) => {
 
   }
 
-  return templateByName(
-    new URL('./component.html', import.meta.url), 
+  return templateByName('./component.html', 
     {
       count,
       mousedown,

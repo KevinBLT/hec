@@ -19,7 +19,7 @@ export function templateByName(name, props = {}) {
   }
 
   /** @type { HTMLTemplateElement } */
-  let tmpl = document.querySelector(`template[id="${name}"]`);
+  let tmpl = document.querySelector(`template[name="${name}"]`);
 
   if (!tmpl) {
     /** @type { HTMLMetaElement } */
@@ -41,7 +41,7 @@ export function templateByName(name, props = {}) {
     return templatesLoading[name].then(e => templateByNode(e.content.cloneNode(true), props));
   }
 
-  return templateByNode(tmpl.content.cloneNode(true).lastChild, props);
+  return templateByNode(tmpl.content.cloneNode(true), props);
 }
 
 /**
@@ -146,25 +146,24 @@ export function templateByNode(template, props = {}) {
     }
 
     if (node instanceof HTMLElement) {
+      const attributeNames = node.getAttributeNames();
       
       setPropsOf(node, props);
 
       for (const plugin of plugins) {
         if (node.matches(plugin.select)) {
-          plugin.run(node, props, () => stopFlag = true);
-          
-          if (stopFlag) {
-            return;
-          }
+          plugin.run(node, props, () => stopFlag = true);    
         }
       }
 
-      const attributeNames = node.getAttributeNames();
-        
+      if (stopFlag) {
+        return;
+      }
+      
       for (const attributeName of attributeNames) {
         const attribute = node.getAttribute(attributeName);
 
-        if (attribute.includes('{{')) {
+        if (attribute?.includes('{{')) {
           
           bindExpressions(attribute, (text) => {
             node.setAttribute(attributeName, text.trim().replace(/ +/, ' '))

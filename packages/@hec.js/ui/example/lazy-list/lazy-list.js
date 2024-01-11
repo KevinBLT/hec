@@ -1,9 +1,8 @@
-import { templateByNode } from '../../lib/index.js';
+import { signal, templateByNode } from '../../lib/index.js';
+import { generateRandomName } from '../nested-signal/util.js';
 
-templateByNode(document.body, {
-  persons: [
-    { name: 'Herbert' },
-    { name: 'Klaus' },
-    { name: 'Günther' },
-  ]
-})
+const persons = Array.from({ length: 500 }, () => {
+  return  { name: generateRandomName }
+});
+
+templateByNode(document.body, { persons });

@@ -66,10 +66,9 @@ export function component(name, props, fn) {
     }
 
     async connectedCallback() {
-      const hidden = this.closest('[hidden]');
-
-      if (this.hasAttribute('data-lazy') && hidden) {
-        await notifyVisible(this, hidden);
+      
+      if (this.hasAttribute('data-lazy')) {
+        await notifyVisible(this);
         this.removeAttribute('data-lazy');
       }
 

@@ -1,6 +1,7 @@
 import { isSignal } from "../signal.js";
 import { templateByNode } from "../template.js";
 import { f, prop } from "../props.js";
+import { loaded } from "./data-include.js";
 
 const done = new WeakSet();
 
@@ -23,6 +24,8 @@ export const dataForPlugin = {
           placeholder = document.createComment(node.dataset.for);
   
     node.replaceWith(placeholder);
+
+    loaded.add(node);
 
     const clear = () => {
       /** @type { Node } */

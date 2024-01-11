@@ -27,17 +27,12 @@ export const dataLazyPlugin = {
       node.removeAttribute('data-lazy');
     }
 
-    if (hidden) {
-
-      if (className) {
-        node.addEventListener('::load',   () => node.classList.add(className),    { once: true });
-        node.addEventListener('::loaded', () => node.classList.remove(className), { once: true });
-      }
-  
-      notifyVisible(node, hidden).then(execute);
-      stopTemplate();
-    } else {
-      node.removeAttribute('data-lazy');
+    if (className) {
+      node.addEventListener('::load',   () => node.classList.add(className),    { once: true });
+      node.addEventListener('::loaded', () => node.classList.remove(className), { once: true });
     }
+
+    notifyVisible(node).then(execute);
+    stopTemplate();
   }
 }

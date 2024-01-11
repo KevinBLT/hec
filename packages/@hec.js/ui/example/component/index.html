@@ -5,16 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>hec.js :: Component</title>
     <script type="module" async src="./component.js"></script>
+
+    <style>
+      my-counter {
+        min-height: 10rem;
+        display: block;
+      }
+    </style>
   </head>
   <body>
     
-    <my-counter data-for="let e of list" camelCase="{{ e.count }}" count="{{ e.count }}"></my-counter>
+    <my-counter data-lazy data-for="let e of list" camelCase="{{ e.count }}" count="{{ e.count }}"></my-counter>
 
     <script type="module">
       import { templateByNode } from '../../lib/index.js';
 
       templateByNode(document.body, {
-        list: Array.from({ length: Math.round(Math.random() * 100)}, () => (
+        list: Array.from({ length: Math.round(Math.random() * 1000)}, () => (
           { count: Math.round(Math.random() * 0xffffff) })
         ),
       });

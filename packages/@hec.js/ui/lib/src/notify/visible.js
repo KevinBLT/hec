@@ -1,29 +1,29 @@
-/** 
- * @param { Element } node 
- * @param { Element | undefined } hidden 
- */
-export function notifyVisible(node, hidden = null) {
-  hidden ??= node.closest('[hidden]');
+/** @type { WeakMap<Node, ((value?: any) => void)[]> } */
+const notifiers = new WeakMap();
 
-  return new Promise((resolve, reject) => {
-    const observer = new MutationObserver(() => {
-      hidden = node.closest('[hidden]');
-  
-      if (hidden) {
-        return observer.observe(hidden, {
-          attributes: true, 
-          attributeFilter: ['hidden']
-        });
+const observer = new IntersectionObserver((entries) => {
+
+  for (const entry of entries) {
+    if (entry.isIntersecting && notifiers.has(entry.target)) {
+      for (const resolve of notifiers.get(entry.target)) {
+        resolve();
       }
 
-      observer.disconnect();
-      
-      resolve();
-    });
-  
-    observer.observe(hidden, {
-      attributes: true, 
-      attributeFilter: ['hidden']
-    });
+      notifiers.delete(entry.target);
+      observer.unobserve(entry.target);
+    }
+  }
+}, {
+  rootMargin: '256px',
+});
+
+/** @param { Element } node */
+export function notifyVisible(node) {
+  return new Promise((resolve) => {
+    const resolvers = notifiers.get(node) ?? [];
+
+    resolvers.push(resolve);
+    notifiers.set(node, resolvers);
+    observer.observe(node);
   });
 }
