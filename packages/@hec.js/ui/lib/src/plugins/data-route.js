@@ -30,7 +30,7 @@ export const dataRoutePlugin = {
     const update = () => {
       const href = location.href.replace(/index\.*[a-z0-9]*$/gm, '');
 
-      if (pattern.test(href)) {
+      if (!node.parentNode && pattern.test(href)) {
         node.hidden = false;
         placeholder.after(node);
         
@@ -41,7 +41,7 @@ export const dataRoutePlugin = {
           meta.content = pattern.pathname;
         }
 
-      } else {
+      } else if (node.localName != 'link') {
         node.remove();
       }
     }

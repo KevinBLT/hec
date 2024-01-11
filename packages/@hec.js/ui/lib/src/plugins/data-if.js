@@ -13,10 +13,11 @@ export const dataIfPlugin = {
     
     /** @param { boolean } condition */ 
     const update = (condition) => {
-      if (condition) {
+
+      if (!node.parentNode && condition) {
         node.hidden = false;
         placeholder.after(node);
-      } else {
+      } else if (node.localName != 'link') {
         node.remove();
       }
     }
