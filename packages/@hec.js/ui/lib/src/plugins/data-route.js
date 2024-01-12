@@ -24,7 +24,7 @@ export const dataRoutePlugin = {
 
     /* -- Polyfill safari -- */
     if (!('URLPattern' in window)) { // @ts-ignore
-      await import('https://kevinblt.github.io/hec/packages/@hec.js/ui/lib/src/plugins.js');
+      await import('https://kevinblt.github.io/hec/packages/@hec.js/ui/dist/urlpattnern.min.js');
     }
     /* -- -- */
 
