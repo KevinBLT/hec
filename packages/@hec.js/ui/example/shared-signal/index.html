@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>hec.js :: Shared Signal</title>
+  </head>
+  <body>
+
+    <p>The Signal A and B share the same ID, each ID is unique, so they are the same signal. Also the signals use the sessionStorage.</p>
+
+    <pre>
+      SignalA: {{ signalA }}
+      SignalB: {{ signalB }}
+      SignalC: {{ signalC.name }}
+    </pre>
+
+    <button class="A">Increment A</button>
+    <button class="B">Increment B</button>
+
+    <script src="index.js" type="module"></script>
+  </body>
+</html>

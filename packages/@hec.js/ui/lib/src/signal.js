@@ -10,12 +10,13 @@ import { f } from "./props.js";
 /**
  * @template T
  * @typedef {{ 
- *   signal    : string,
+ *   id        : string | undefined,
+ *   storage   : 'local' | 'session' | undefined, 
  *   subscribe : (functions: Subscriber<T>, options?: { signal: AbortSignal }) => void,
- *   map       : <V>(fn: (value: T) => V) => Signal<V>
- *   filter    : (fn: (value: T) => boolean) => Signal<T>
- *   set       : (value: T) => void
- *   update    : (value: T) => void
+ *   map       : <V>(fn: (value: T) => V) => Signal<V>,
+ *   filter    : (fn: (value: T) => boolean) => Signal<T>,
+ *   set       : (value: T) => void,
+ *   update    : (value: T) => void,
  * } & ((newValue?: T | undefined) => T) } Signal
  */
 
@@ -24,20 +25,91 @@ import { f } from "./props.js";
  * @typedef { (subcription: Subscriber<T>, options?: { signal: AbortSignal } | undefined) => void } SubscribeFn
  */
 
+/** @type { Storage } */
+const sharedStorage = {
+  items: new Map(),
+  
+  setItem(key, value) {
+    this.items.set(key, value.toString());
+  },
+
+  get length() {
+    return this.items.keys().length;
+  },
+
+  key(index) {
+    return Array.from(this.items.values()).at(index);
+  },
+
+  clear() {
+    this.items.clear();
+  },
+
+  getItem(key) {
+    return this.items.get(key);
+  },
+
+  removeItem(key) {
+    this.items.delete(key);
+  }
+}
+
+/** @type { Map<string, Signal<any>> } */
+const sharedSignals = new Map();
+
+/**
+ * @param { 'local' | 'session' } name
+ * @returns { Storage }
+ */
+function storageByName(name) {
+
+  try {
+    const storage = window[name + 'Storage'];
+
+    return typeof storage.length == 'number' ? storage : sharedStorage;
+  } catch (error) {
+    return sharedStorage;
+  }
+}
+
+window.addEventListener('storage', (storageEvent) => {
+  
+  if (!sharedSignals.has(storageEvent.key)) {
+    return;
+  }
+
+  const signal = sharedSignals.get(storageEvent.key),
+        stored = storageEvent.storageArea.getItem(storageEvent.key);
+
+  if (typeof stored === 'string' && stored !== 'undefined') {
+    signal.update(JSON.parse(stored));
+  } 
+
+});
+
 /**
  * @template T
  * @param { T } value 
- * @param {{ name?: string }} options 
+ * @param {{ id?: string, storage?: 'local' | 'session' }} options 
  * @returns { Signal<T> }
  */
 export function signal(value = null, options = {}) {  
 
+  if (options.id && sharedSignals.has(options.id)) {
+    return sharedSignals.get(options.id);
+  }
+
   /** @type { Subscriber<T>[] } */
-  const subscribers = [];
+  const subscribers = [],
+        storage     = options.storage && storageByName(options.storage);
 
   /** @param { T } v */
   const update = (v) => {
     value = v;
+
+    if (storage) {
+      storage.setItem(options.id, JSON.stringify(value));
+    }
 
     for (const subscriber of subscribers) {
       subscriber.next(value);
@@ -67,8 +139,19 @@ export function signal(value = null, options = {}) {
     }, { once: true});
   };
 
-  return Object.assign(getset, {
-    signal: options.name ?? '',
+  if (storage) {
+    const stored = storage.getItem(options.id);
+     
+    if (typeof stored === 'string' && stored !== 'undefined') {
+      update(JSON.parse(stored));
+    } else {
+      update(value);
+    }
+  }
+
+  const s = Object.assign(getset, {
+    id: options.id,
+    storage: options.storage,
     toString: () => value.toString(),
     set: (v) => value = v,
     update,
@@ -110,6 +193,12 @@ export function signal(value = null, options = {}) {
       return Object.assign(filtered, { set: () => null });
     }
   });
+
+  if (options.id) {
+    sharedSignals.set(options.id, s);
+  }
+
+  return s;
 }
 
 /**
