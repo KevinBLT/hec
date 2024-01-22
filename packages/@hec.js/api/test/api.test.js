@@ -1,6 +1,5 @@
-import { environment } from '@hec.js/env';
 import { expect, test } from 'vitest';
-import { API } from '../lib/index.js';
+import { API } from '@hec.js/api';
 
 const api = new API(
   {

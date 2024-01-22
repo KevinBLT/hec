@@ -1,35 +1,56 @@
 /**
- * @typedef {Response | undefined | void} MaybeResponse
+ * @typedef { Response | undefined | void } MaybeResponse
  */
-
-import { ApiRequest } from './request.js';
 
 /**
  * @template T
- * @typedef {function(ApiRequest, T): MaybeResponse | Promise<MaybeResponse>} RouteRequest
+ * @typedef { (request: import('./request.js').ApiRequest, context: T) => MaybeResponse | Promise<MaybeResponse> } RouteRequest
  */
 
-
 /**
- * @typedef {Object} _ApiRequest
- * @property {(key: string) => string} param
- * @property {(key: string) => string} query
- * @property {() => Promise<Uint8Array | string | {[key: string]: any | null}>} data
- * @property {(key: string, value?: any) => string} prop
- * @property {string} path
+ * @typedef { Object } _ApiRequest
+ * @property { (key: string) => string } param
+ * @property { (key: string) => string } query
+ * @property { () => Promise<Uint8Array | string | {[key: string]: any | null}> } data
+ * @property { (key: string, value?: any) => string } prop
+ * @property { string } path
  * @extends {Request}
  */
 
-/**
- * @template T
- * @typedef {{
-*   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'HEAD' | 'OPTIONS' | 'DELETE' | null,
-*   path?: string | null,
-*   accept?: string[] | null,
-*   contentType?: string | null,
-*   fetch?: RouteRequest<T> | null,
-*   middlewares?: RouteRequest<T>[] | null,
-*   group?: Route<T>[] | null,
-*   pattern?: import('urlpattern-polyfill').URLPattern | null
-* }} Route
-*/
+/** @template T */
+export class Route {
+
+  /** @param { Partial<Route<T>> } options */
+  constructor(options) {
+    Object.assign(this, options);
+
+    if (this.group) {
+      this.group = this.group.map(e => new Route(e));
+    }
+    
+  }
+
+  /** @type { 'GET' | 'POST' | 'PUT' | 'PATCH' | 'HEAD' | 'OPTIONS' | 'DELETE' | undefined } */
+  method;
+
+  /** @type { string | undefined } */
+  path;
+
+  /** @type { string[] | undefined } */
+  accept;
+
+  /** @type { string | undefined } */
+  contentType;
+
+  /** @type { RouteRequest<T> | undefined } */
+  fetch;
+
+  /** @type { RouteRequest<T>[] | undefined } */
+  middlewares;
+
+  /** @type { Partial<Route<T>>[] | undefined } */
+  group;
+
+  /** @type { import('urlpattern-polyfill').URLPattern | undefined } */
+  pattern;
+}

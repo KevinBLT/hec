@@ -3,13 +3,13 @@ import { serveBy } from './routing/serve.js';
 import { routeCompare } from './routing/sort.js';
 import { routeMatch } from './routing/match.js';
 import { integrateRoute } from './routing/routing.js';
-
 import { ApiRequest } from './routing/request.js';
+import { Route } from './routing/route.js';
 
 /** @template T */
 export class API {
 
-  /** @type { import('./routing/route.js').Route<T>[] } */
+  /** @type { Route<T>[] } */
   #routes = [];
 
   /** @type { T } */
@@ -17,7 +17,7 @@ export class API {
 
   /** 
    * @param { T } context 
-   * @param { import('./routing/route.js').Route<T>[] } routes  
+   * @param { Partial<Route<T>>[] } routes  
    */
   constructor(context, routes = []) {
     this.#context = context;
@@ -28,13 +28,15 @@ export class API {
   }
 
   /** 
-   * @param { import('./routing/route.js').Route<T> } route 
+   * @param { Partial<Route<T>> } route 
    * @returns { API<T> }
    * */
   route(route) {
-    integrateRoute(route);
+    const r = new Route(route);
 
-    this.#routes.push(route);
+    integrateRoute(r);
+
+    this.#routes.push(r);
     this.#routes.sort(routeCompare);
 
     return this;
@@ -70,8 +72,8 @@ export class API {
     
     /** 
      * @param { ApiRequest } request 
-     * @param { import('./routing/route.js').Route<T>[] } routes 
-     * @returns { Promise<import('./routing/route.js').Route<T> | undefined>}
+     * @param { Route<T>[] } routes 
+     * @returns { Promise<Route<T> | undefined>}
      */
     const findRoute = async (request, routes) => {
       
@@ -105,8 +107,9 @@ export class API {
               }
             }
           }
-
-          return route.fetch ? route : findRoute(request, route.group);
+   
+          // @ts-ignore: Group here are always full Route<T> instances
+          return route.fetch ? route : findRoute(request, group);
         }
       }  
     } 

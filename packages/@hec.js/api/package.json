@@ -5,6 +5,7 @@
   "description": "API lib for the hec.dev environment",
   "license": "MIT",
   "main": "./lib/index.js",
+  "types": "./lib/types/index.d.ts",
   "dependencies": {
     "@hec.js/api": "file:./",
     "urlpattern-polyfill": "^9.0.0"
