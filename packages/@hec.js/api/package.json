@@ -6,6 +6,9 @@
   "license": "MIT",
   "main": "./lib/index.js",
   "types": "./lib/types/index.d.ts",
+  "scripts": {
+    "types": "npx -p typescript tsc './lib/index.js' --declaration --allowJs --emitDeclarationOnly --outDir types"
+  },
   "dependencies": {
     "@hec.js/api": "file:./",
     "urlpattern-polyfill": "^9.0.0"

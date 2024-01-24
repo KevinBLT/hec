@@ -5,5 +5,8 @@
     "packages/@hec.js/api",
     "packages/@hec.js/env",
     "packages/@hec.js/ui"
-  ]
+  ],
+  "dependencies": {
+    "mime-types": "^2.1.35"
+  }
 }
