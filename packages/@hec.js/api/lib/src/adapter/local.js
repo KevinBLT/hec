@@ -15,13 +15,22 @@ export function fileFetch(options = { directory: '.', maxAge: 14000 }) {
   /** @type { Map<string, FileInfo> } */
   const cache = new Map();
 
-  return async (request) => {
+  /** @type { import('../../types/src/routing/route.js').RouteRequest<T> } */
+  const fileByRequest = async (request) => {
     const headers      = request.headers,
           filePath     = path.join(options.directory, request.path),
           fileInfo     = cache.get(filePath),
           ifRange      = headers.get('if-range'),
           etag         = headers.get('if-none-match'),
           lastModified = headers.get('if-modified-since');
+
+    function forward(path) {
+      return fileByRequest(new ApiRequest(request.url + path, { headers: request.headers }), null);
+    }
+
+    if (filePath.endsWith('/')) {
+      return forward('index.html');
+    }
 
     if (etag === fileInfo?.etag || lastModified === fileInfo?.lastModified) {
       return new Response(null, { status: 304 });
@@ -30,6 +39,11 @@ export function fileFetch(options = { directory: '.', maxAge: 14000 }) {
     const fileStat = await stat(filePath).catch(() => null);
 
     if (!fileStat) {
+
+      if (!filePath.endsWith('.html')) {
+        return forward('.html');
+      }
+
       return new Response(null, { status: 404 });
     }
 
@@ -64,6 +78,8 @@ export function fileFetch(options = { directory: '.', maxAge: 14000 }) {
       }
     });
   }
+
+  return fileByRequest;
 }
 
 /**
