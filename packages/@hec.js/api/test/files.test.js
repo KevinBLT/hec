@@ -7,7 +7,7 @@ api.route({
   path: '/*', 
   contentType: 'text/html',
   fetch: pages({ 
-    spaPath: '/index.html',
+    index: '/index.html',
     fileProvider: files({ 
       directory: './packages/@hec.js/api/test/assets', 
       cacheControl: 'private, max-age=0'

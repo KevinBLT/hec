@@ -7,7 +7,7 @@ import path from 'path';
  *   directory?: string,
  *   fileProvider: (request: Request) => Promise<Response>,
  *   indexes?: string[],
- *   spaPath?: string,
+ *   index?: string,
  *   errorPages?: { [key: number]: string }
  * }} options 
  * 
@@ -15,7 +15,7 @@ import path from 'path';
  * 
  * @description 
  * Option `fileProvder` is called to retrieve a file
- * Option `spaPath` if this is set, it will serve all requests
+ * Option `index` if this is set, it will serve all requests that don't match a file
  * Option `indexes` is used to append strings the and of a url if it's not found.
  * Example using ['.html', 'index.html']:
  *  - request: `/foobar` => /foobar.html
@@ -28,22 +28,16 @@ export function pages(options) {
   options.directory ??= '.';
   options.indexes   ??= ['.html', 'index.html'];
 
+  const fileProvider = options.fileProvider;
+
   return async (request) => {
     const url = new URL(request.url);
 
-    if (!request.headers.get('accept').includes('text/html')) {
-      return new Response(null, { status: 404 });
-    }
-
     let location = path.parse(url.pathname),
-        response = await options.fileProvider(request),
+        response = location.ext ? await fileProvider(request) : new Response(null, { status: 404 }),
         origin   = url.origin;
 
     if (response.status == 404) {
-
-      if (options.spaPath) {
-        return options.fileProvider(new Request(origin + options.spaPath));
-      }  
 
       for (const index of options.indexes) {
         response = await options.fileProvider(new Request(request.url + index, request));
@@ -52,6 +46,11 @@ export function pages(options) {
           return response;
         }
       }
+
+      if (options.index) {
+        return options.fileProvider(new Request(origin + options.index));
+      }
+
     }
 
     if (!response.ok) {

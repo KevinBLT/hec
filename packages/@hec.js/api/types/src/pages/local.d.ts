@@ -13,7 +13,7 @@
  *
  * @description
  * Option `fileProvder` is called to retrieve a file
- * Option `spaPath` if this is set, it will serve all requests
+ * Option `index` if this is set, it will serve all requests that don't match a file
  * Option `indexes` is used to append strings the and of a url if it's not found.
  * Example using ['.html', 'index.html']:
  *  - request: `/foobar` => /foobar.html
@@ -26,7 +26,7 @@ export function pages<T>(options: {
     directory?: string;
     fileProvider: (request: Request) => Promise<Response>;
     indexes?: string[];
-    spaPath?: string;
+    index?: string;
     errorPages?: {
         [key: number]: string;
     };
