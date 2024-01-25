@@ -7,10 +7,11 @@
   "main": "./lib/index.js",
   "types": "./lib/types/index.d.ts",
   "scripts": {
-    "types": "npx -p typescript tsc './lib/index.js' --declaration --allowJs --emitDeclarationOnly --outDir ./lib/types"
+    "types": "npx -p typescript tsc './lib/index.js' --declaration --allowJs --emitDeclarationOnly --outDir types && rm -rf ./lib/types && mv types ./lib/types"
   },
   "dependencies": {
     "@hec.js/api": "file:./",
-    "urlpattern-polyfill": "^9.0.0"
+    "urlpattern-polyfill": "^9.0.0",
+    "mime-types": "^2.1.35"
   }
 }

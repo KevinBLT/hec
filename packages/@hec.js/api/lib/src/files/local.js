@@ -10,10 +10,7 @@ import path               from 'path';
  *   directory?: string, 
  *   cacheControl?: string,
  *   cacheDuration?: number,
- *    indexes?: string[],
- *    fallbackPaths?: { [key: string]: string },
- *    errorPages?: { [key: number]: string },
- *    proxy?: (request: Request) => Promise<Response>
+ *   proxy?: (request: Request) => Promise<Response>
  * }} options 
  * @returns { import('../../types/src/routing/route.js').RouteRequest<T> }
  * 
@@ -24,22 +21,10 @@ import path               from 'path';
  * The option `cacheDuration` defines how long an `lastModfied/etag` pair can stay in memory before
  * recalculation for a given URL. Default value is: `10000ms`.
  * 
- * Option `indexes` is used to append strings the and of a url if it's not found.
- * Example using ['.html', 'index.html']:
- *  - request: `/foobar` => /foobar.html
- *  - request: `/foobar/` => /foobar/index.html
- * 
- * Option `fallbackPaths` is used to determine default files for various file types.
- * Example: { 'text/html': '/index.html' }
- * 
- * Option `errorPages` is used to determine a HTML page for a given error status code.
- * Example: { 404: '/404.html' }
- * 
  * If `proxy` is give, it will be used instead the local file system.
  */
 export function files(options = {}) {
   options.directory     ??= '.';
-  options.indexes       ??= ['.html', 'index.html'];
   options.cacheDuration ??= 10000;
   options.cacheControl  ??= `public, max-age=14400, stale-while-revalidate=28800, stale-if-error=28800`;
 
@@ -105,46 +90,7 @@ export function files(options = {}) {
 
   options.proxy ??= localFileProxy;
 
-  return async (request) => {
-    let response = await options.proxy(request);
-
-    if (response.status == 404) {
-
-      for (const index of options.indexes) {
-        response = await options.proxy(new Request(request.url + index, request));
-
-        if (response.ok) {
-          return response;
-        }
-      }
-
-      for (const contentType in options.fallbackPaths) {
-        
-        if (request.headers.get('accept').includes(contentType)) {
-          const path = options.fallbackPaths[contentType];
-          
-          return options.proxy(new Request('http://localhost' + path, request));
-        }
-      }
-    }
-
-    if (!response.ok && request.headers.get('accept').includes('text/html')) {
-      const path = options.errorPages[response.status];
-
-      if (path) {
-        const errorPage = await options.proxy(new Request('http://localhost' + path, request));
-
-        return new Response(errorPage.body, { 
-          status: response.status, 
-          headers: { 
-            'content-type' : 'text/html' 
-          } 
-        });
-      }      
-    }
-
-    return response;
-  }
+  return options.proxy;
 }
 
 /**

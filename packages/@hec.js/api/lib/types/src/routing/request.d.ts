@@ -27,4 +27,5 @@ export class ApiRequest extends Request {
         [key: string]: any;
     }>;
     get path(): any;
+    #private;
 }
