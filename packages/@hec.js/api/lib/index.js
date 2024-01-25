@@ -1,2 +1,2 @@
 export * from './src/api.js';
-export * from './src/adapter/local.js';
+export * from './src/files/local.js';
