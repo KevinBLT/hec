@@ -45,6 +45,10 @@ export const dataForPlugin = {
     const update = (list) => {
       clear();
 
+      if (!list || !list[Symbol.iterator]) {
+        return console.warn('data-for: The value given is not iterable.', { key: propName, value: list });
+      }
+
       for (let i = 0, /** @type { ChildNode } */ n = placeholder; i < list.length; i++) {
         const c = node.cloneNode(true),
               p = Object.assign({}, props, {

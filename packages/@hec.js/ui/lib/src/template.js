@@ -103,6 +103,10 @@ export function templateByNode(template, props = {}) {
     for (const exp of expressions) {
       const value = prop(props, exp.prop);
 
+      if (value == undefined) {
+        console.warn(`{{ ${exp.prop} }}: No value for this key`, { key: exp.prop, value });
+      }
+
       if (isSignal(value)) {
         /** @type { import("./signal.js").Signal<any> } */
         let signal = value;
@@ -150,11 +154,14 @@ export function templateByNode(template, props = {}) {
     update(evaluate());
   };
 
-  /** @param { Node } node */
-  const findExpression = (node) => {
+  /** 
+   * @param { Node } node 
+   * @param { WeakSet<Node> } done 
+   */
+  const findExpression = (node, done = new WeakSet()) => {
     let stopFlag = false;
 
-    if (hasProps(node)) {
+    if (hasProps(node) || done.has(node)) {
       return;
     }
 
@@ -208,6 +215,7 @@ export function templateByNode(template, props = {}) {
           bindExpressions(`{{${parts[i]}}}`, (v) => text.data = v.replaceAll('<null>', ''));
         }
 
+        done.add(text);
         last.after(text);
         last = text;
       }
@@ -215,12 +223,14 @@ export function templateByNode(template, props = {}) {
       node.remove();
     }
 
+    done.add(node);
+
     for (const child of node.childNodes) {
-      findExpression(child);
+      findExpression(child, done);
     }
   };
 
-  findExpression(template);
+  findExpression(template, new WeakSet());
 
   return template;
 }

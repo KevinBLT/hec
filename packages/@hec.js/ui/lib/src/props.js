@@ -85,7 +85,7 @@ export function prop(props, key) {
       }
       
     } else {
-      return null;
+      return undefined;
     }
   }
 

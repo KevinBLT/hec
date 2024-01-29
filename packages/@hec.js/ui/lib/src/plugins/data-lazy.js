@@ -15,10 +15,10 @@ export const dataLazyPlugin = {
     
     loaded.add(node);
 
-    const hidden    = node.closest('[hidden]'),
-          className = node.dataset.lazy;
+    const className = node.dataset.lazy;
 
     const execute = () => {
+      templateByNode(node, props);
       
       for (const child of node.childNodes) {
         templateByNode(child, props);
