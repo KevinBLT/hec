@@ -237,7 +237,7 @@ export function memo(fn, signals = [], value = null) {
 /**
  * @template T
  * @typedef {{ 
- *   state: Signal<'pending' | 'error' | null>,
+ *   state: Signal<'pending' | 'error' | 'loaded'>,
  *   error?: string,
  *   refetch: () => Promise<T | undefined>
  * } & Signal<T>} Resource
@@ -264,7 +264,7 @@ export function resource(fetch, initialValue = null) {
   /** @type { Signal<T> } */
   const value = signal(initialValue);
 
-  /** @type { Signal<'pending' | 'error' | null> } */
+  /** @type { Signal<'pending' | 'error' | 'loaded'> } */
   const state = signal('pending');
 
   const update = async () => {
@@ -272,7 +272,7 @@ export function resource(fetch, initialValue = null) {
     try {
       state('pending');
       value(await fetch());
-      state(null);
+      state('loaded');
 
       // @ts-ignore
       delete value.error;
