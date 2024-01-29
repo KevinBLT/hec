@@ -42,6 +42,8 @@ export function component(name, props, fn) {
 
     #ready = false;
 
+    #lazy  = null;
+
     /**
      * @param { string } eventName 
      * @param { (event: Event) => void } callback 
@@ -68,9 +70,11 @@ export function component(name, props, fn) {
     }
 
     async connectedCallback() {
+      this.#lazy ??= this.hasAttribute('data-lazy');
       
-      if (this.hasAttribute('data-lazy')) {
+      if (this.#lazy) {
         await notifyVisible(this);
+        this.removeAttribute('data-lazy');
       }
 
       this.dispatchEvent(new CustomEvent('::load', { bubbles: true }));
@@ -114,13 +118,6 @@ export function component(name, props, fn) {
     }
 
     disconnectedCallback() {
-      deletePropsOf(this);
-
-      for (const k in this.#aborts) {
-        this.#aborts[k].abort();
-        delete this.#aborts[k];
-      }
-
       this.dispatchEvent(new CustomEvent('::unmount'));
     }
 

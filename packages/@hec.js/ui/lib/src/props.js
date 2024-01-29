@@ -42,7 +42,7 @@ export function prop(props, key) {
 
   for (const p of chain) {
 
-    if (['loading', 'error'].includes(p) && props?.loading && props?.error) {
+    if (['state'].includes(p) && props?.state) {
       return props[p];
     } else if (isSignal(props)) {
       const value = props()?.[p];

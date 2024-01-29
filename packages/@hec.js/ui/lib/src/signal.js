@@ -116,7 +116,7 @@ export function signal(value = null, options = {}) {
     }
   }
 
-  function getset() {
+  function __signal() {
     
     if (arguments.length && value !== arguments[0]) {
       update(arguments[0]);
@@ -149,7 +149,7 @@ export function signal(value = null, options = {}) {
     }
   }
 
-  const s = Object.assign(getset, {
+  const s = Object.assign(__signal, {
     id: options.id,
     storage: options.storage,
     toString: () => value.toString(),
@@ -237,32 +237,50 @@ export function memo(fn, signals = [], value = null) {
 /**
  * @template T
  * @typedef {{ 
- *   error: Signal<null | string>,
- *   loading: Signal<boolean>,
+ *   state: Signal<'pending' | 'error' | null>,
+ *   error?: string,
  *   refetch: () => Promise<T | undefined>
- * } & Signal<T>} AsyncSignal 
+ * } & Signal<T>} Resource
  */
 
 /** 
  * @template T
  * @param { () => Promise<T> } fetch 
  * @param { T } initialValue 
- * @returns { AsyncSignal<T> }
+ * @returns { Resource<T> }
+ * 
+ * @description 
+ * A signal that is given a fetch function to retrieve a value.
+ * The resulting signal is then updated, once the fetch function
+ * is completed.
+ * 
+ * The resource can have three states 
+ * - `null`: Everything loaded
+ * - `pending`: the fetcher is executing, stale data might be seen
+ * - `error` an error occured and the error message is given in the error property
  */
 export function resource(fetch, initialValue = null) {
 
   /** @type { Signal<T> } */
-  const value   = signal(initialValue);
-  const loading = signal(true);
-  const error   = signal(null);
+  const value = signal(initialValue);
+
+  /** @type { Signal<'pending' | 'error' | null> } */
+  const state = signal('pending');
 
   const update = async () => {
     
     try {
+      state('pending');
       value(await fetch());
-      loading(false);
+      state(null);
+
+      // @ts-ignore
+      delete value.error;
     } catch (error) {
-      error(error);
+      state('error');
+
+      // @ts-ignore
+      value.error = error;
     }
 
     return value();
@@ -270,7 +288,7 @@ export function resource(fetch, initialValue = null) {
 
   update();
 
-  return Object.assign(value, {loading, error, refetch: update });
+  return Object.assign(value, { state, refetch: update });
 }
 
 /**
@@ -279,7 +297,7 @@ export function resource(fetch, initialValue = null) {
  * @param { P } prop 
  * @param { (value: P) => Promise<T> } fetch
  * @param { T } initialValue 
- * @returns { AsyncSignal<T> }
+ * @returns { Resource<T> }
 */
 export function resourceBy(prop, fetch, initialValue = null) {
   const r = resource(() => fetch(f(prop)), initialValue);

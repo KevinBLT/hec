@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>hec.js :: Plugins</title>
+    <title>hec.js :: Lazy</title>
     <script type="module" defer src="./lazy.js"></script>
 
     <style>
@@ -24,7 +24,7 @@
 
     <div>The parts will lazy load...</div>
 
-    <div data-lazy>
+    <div data-lazy data-test="{{ name }}">
       <div>Inline 1 {{ name }}</div>
     </div>
 
@@ -38,9 +38,9 @@
           Inline 4 {{ name }}
         </div>  
 
-        <my-test data-lazy></my-test>
+        <my-test data-lazy data-test="{{ name }}"></my-test>
 
-        <div data-lazy="--loading" data-include="include.html"></div>
+        <div  data-test="{{ name }}" data-lazy="--loading" data-include="include.html"></div>
       </div>  
 
       <div data-lazy data-include="include.html"></div>

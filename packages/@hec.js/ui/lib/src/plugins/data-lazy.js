@@ -8,7 +8,7 @@ export const dataLazyPlugin = {
   select: '[data-lazy]',
 
   run: (node, props, stopTemplate) => {
-    
+
     if (loaded.has(node) || !node.childNodes.length) {
       return;
     }
@@ -18,13 +18,11 @@ export const dataLazyPlugin = {
     const className = node.dataset.lazy;
 
     const execute = () => {
-      templateByNode(node, props);
+      node.removeAttribute('data-lazy');
       
       for (const child of node.childNodes) {
         templateByNode(child, props);
       }
-
-      node.removeAttribute('data-lazy');
     }
 
     if (className) {

@@ -180,10 +180,6 @@ export function templateByNode(template, props = {}) {
         }
       }
 
-      if (stopFlag) {
-        return;
-      }
-      
       for (const attributeName of attributeNames) {
         const attribute = node.getAttribute(attributeName);
 
@@ -203,6 +199,10 @@ export function templateByNode(template, props = {}) {
         } else if (node.localName.includes('-') && hasProp(props, attribute)) {
           node.setAttribute(attributeName, `@parent.${attribute}`);
         }
+      }
+
+      if (stopFlag) {
+        return;
       }
       
     } else if (node instanceof Text && node.textContent.includes('{{')) {
