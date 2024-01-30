@@ -1,0 +1,14 @@
+{
+  "name": "@hec.js/database",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "DB lib for the hec.dev environment",
+  "license": "MIT",
+  "main": "./lib/index.js",
+  "dependencies": {
+    "@hec.js/database": "file:./"
+  },
+  "devDependencies": {
+    "vitest": "^1.1.1"
+  }
+}

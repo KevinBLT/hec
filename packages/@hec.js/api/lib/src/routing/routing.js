@@ -19,6 +19,14 @@ export function integrateRoute(route, parent = null) {
     ).replaceAll('//', '/'),
   });
 
-  route.group?.forEach((e) => integrateRoute(e, route));
-  route.group?.sort(routeCompare);
+  if (route.group) {
+
+    for (const childRoute of route.group){
+      // @ts-ignore: Child route will be transoformed into Route<T> by the Route class
+      integrateRoute(childRoute, route);
+    }
+
+    route.group?.sort(routeCompare);
+  }
+  
 }

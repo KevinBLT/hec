@@ -4,6 +4,7 @@
     "packages/@hec.js/cli",
     "packages/@hec.js/api",
     "packages/@hec.js/env",
-    "packages/@hec.js/ui"
+    "packages/@hec.js/ui",
+    "packages/@hec.js/database"
   ]
 }
