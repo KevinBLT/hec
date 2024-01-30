@@ -38,7 +38,7 @@ export function templateByName(name, props = {}) {
             cssLoads = [];
 
       for (const link of cssLinks) {
-        cssLoads.push(fetch(link.href).then(r => r.text()).then((css) => {
+        cssLoads.push(fetch(link.href, { headers: { 'accept': 'text/css' } }).then(r => r.text()).then((css) => {
           const style = document.createElement('style');
 
           style.innerHTML = css;
