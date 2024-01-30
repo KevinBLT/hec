@@ -109,7 +109,7 @@ export class API {
           }
    
           // @ts-ignore: Group here are always full Route<T> instances
-          return route.fetch ? route : findRoute(request, group);
+          return route.fetch ? route : findRoute(request, route.group);
         }
       }  
     } 
