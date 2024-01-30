@@ -79,81 +79,6 @@ export function templateByString(template, props = {}) {
  */
 export function templateByNode(template, props = {}) {
 
-  /**
-   * @param { string } text
-   * @param { function(string): void } update
-   */
-  const bindExpressions = (text, update) => {
-
-    /** @type {import("./expression.js").Expression[]} */
-    let expressions = text.match(/{{[^}]+}}/g).map(expression),
-        sourceText  = text;
-
-    const evaluate = () => {
-      text = sourceText;
-
-      for (const exp of expressions) {
-        const v = f(exp.value);
-        text = text.replace(exp.text, v ?? '<null>');
-      }
-
-      return text;
-    };
-
-    for (const exp of expressions) {
-      const value = prop(props, exp.prop);
-
-      if (value == undefined) {
-        console.warn(`{{ ${exp.prop} }}: No value for this key`, { key: exp.prop, value });
-      }
-
-      if (isSignal(value)) {
-        /** @type { import("./signal.js").Signal<any> } */
-        let signal = value;
-
-        for (const key in exp.meta) {
-          if (pipes[key]) {
-            const pipe = pipes[key];
-
-            signal = signal.map((v) =>
-              pipe({
-                value: v,
-                key: exp.prop,
-                param: exp.meta[key],
-                options: exp.meta,
-              })
-            );
-          }
-        }
-
-        exp.value = signal;
-
-        signal.subscribe({ next: () => update(evaluate()) });
-      } else {
-        
-        let v = value;
-        
-        for (const key in exp.meta) {
-
-          if (pipes[key]) {
-            const pipe = pipes[key];
-
-            v = pipe({
-              value: f(value),
-              key: exp.prop,
-              param: exp.meta[key],
-              options: exp.meta,
-            });
-          }
-        }
-
-        exp.value = () => v;
-      }
-    }
-
-    update(evaluate());
-  };
-
   /** 
    * @param { Node } node 
    * @param { WeakSet<Node> } done 
@@ -170,7 +95,7 @@ export function templateByNode(template, props = {}) {
     }
 
     if (node instanceof HTMLElement) {
-      const attributeNames = node.getAttributeNames();
+      
       
       setPropsOf(node, props);
 
@@ -180,30 +105,11 @@ export function templateByNode(template, props = {}) {
         }
       }
 
-      for (const attributeName of attributeNames) {
-        const attribute = node.getAttribute(attributeName);
-
-        if (attribute?.includes('{{')) {
-          
-          bindExpressions(attribute, (text) => {
-            text = text.trim().replace(/ +/, ' ');
-
-            if (text === '<null>') {
-              node.removeAttribute(attributeName);
-            } else {
-              node.setAttribute(attributeName, text);
-            }
-
-          });
-
-        } else if (node.localName.includes('-') && hasProp(props, attribute)) {
-          node.setAttribute(attributeName, `@parent.${attribute}`);
-        }
-      }
-
       if (stopFlag) {
         return;
       }
+
+      executeNodeAttributesTemplate(node, props);
       
     } else if (node instanceof Text && node.textContent.includes('{{')) {
       const parts = node.textContent.split(/{{|}}/g);
@@ -212,7 +118,7 @@ export function templateByNode(template, props = {}) {
         text = document.createTextNode(parts[i]);
 
         if ((i % 2) != 0) {
-          bindExpressions(`{{${parts[i]}}}`, (v) => text.data = v.replaceAll('<null>', ''));
+          bindExpressions(`{{${parts[i]}}}`, props, (v) => text.data = v.replaceAll('<null>', ''));
         }
 
         done.add(text);
@@ -234,3 +140,108 @@ export function templateByNode(template, props = {}) {
 
   return template;
 }
+
+/**
+ * @param { HTMLElement } node 
+ * @param { {[key: string]: any } } props
+ */
+export const executeNodeAttributesTemplate = (node, props) => {
+  const attributeNames = node.getAttributeNames();
+
+  for (const attributeName of attributeNames) {
+    const attribute = node.getAttribute(attributeName);
+  
+    if (attribute?.includes('{{')) {
+      
+      bindExpressions(attribute, props, (text) => {
+        text = text.trim().replace(/ +/, ' ');
+  
+        if (text === '<null>') {
+          node.removeAttribute(attributeName);
+        } else {
+          node.setAttribute(attributeName, text);
+        }
+  
+      });
+  
+    } else if (node.localName.includes('-') && hasProp(props, attribute)) {
+      node.setAttribute(attributeName, `@parent.${attribute}`);
+    }
+  }
+}
+
+/**
+ * @param { string } text
+ * @param { {[key: string]: any } } props
+ * @param { function(string): void } update
+ */
+const bindExpressions = (text, props, update) => {
+
+  /** @type {import("./expression.js").Expression[]} */
+  let expressions = text.match(/{{[^}]+}}/g).map(expression),
+      sourceText  = text;
+
+  const evaluate = () => {
+    text = sourceText;
+
+    for (const exp of expressions) {
+      const v = f(exp.value);
+      text = text.replace(exp.text, v ?? '<null>');
+    }
+
+    return text;
+  };
+
+  for (const exp of expressions) {
+    const value = prop(props, exp.prop);
+
+    if (value == undefined) {
+      console.warn(`{{ ${exp.prop} }}: No value for this key`, { key: exp.prop, value });
+    }
+
+    if (isSignal(value)) {
+      /** @type { import("./signal.js").Signal<any> } */
+      let signal = value;
+
+      for (const key in exp.meta) {
+        if (pipes[key]) {
+          const pipe = pipes[key];
+
+          signal = signal.map((v) =>
+            pipe({
+              value: v,
+              key: exp.prop,
+              param: exp.meta[key],
+              options: exp.meta,
+            })
+          );
+        }
+      }
+
+      exp.value = signal;
+
+      signal.subscribe({ next: () => update(evaluate()) });
+    } else {
+      
+      let v = value;
+      
+      for (const key in exp.meta) {
+
+        if (pipes[key]) {
+          const pipe = pipes[key];
+
+          v = pipe({
+            value: f(value),
+            key: exp.prop,
+            param: exp.meta[key],
+            options: exp.meta,
+          });
+        }
+      }
+
+      exp.value = () => v;
+    }
+  }
+
+  update(evaluate());
+};

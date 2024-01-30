@@ -1,5 +1,5 @@
 import { notifyVisible } from '../notify/visible.js';
-import { templateByNode } from '../template.js';
+import { executeNodeAttributesTemplate, templateByNode } from '../template.js';
 
 const loaded = new WeakSet();
 
@@ -19,6 +19,8 @@ export const dataLazyPlugin = {
 
     const execute = () => {
       node.removeAttribute('data-lazy');
+
+      executeNodeAttributesTemplate(node, props);
       
       for (const child of node.childNodes) {
         templateByNode(child, props);
