@@ -83,9 +83,7 @@ export function component(name, props, fn) {
     async connectedCallback() {
       this.#lazy ??= this.hasAttribute('data-lazy');
       
-      
-
-      if (this.#lazy) {
+      if (this.#lazy && !this.#ready) {
         this.#ready = true;
         this.emit('::load', null, true);
         this.removeAttribute('data-lazy');
