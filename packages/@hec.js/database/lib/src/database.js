@@ -28,9 +28,14 @@ export class Database {
    * @param { any[] }  params 
    * @returns { Promise<any[]> }
    */
-  async query(query, params) {
+  async query(query, params = []) {
     return [];
   }
 
-
+  /**
+   * @param { string } query 
+   * @param { any[] }  params 
+   * @returns { AsyncIterable<any> }
+   */
+  async * stream(query, params = []) {}
 }

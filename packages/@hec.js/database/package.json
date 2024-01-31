@@ -6,7 +6,8 @@
   "license": "MIT",
   "main": "./lib/index.js",
   "dependencies": {
-    "@hec.js/database": "file:./"
+    "@hec.js/database": "file:./",
+    "pg-query-stream": "^4.5.3"
   },
   "devDependencies": {
     "vitest": "^1.1.1"

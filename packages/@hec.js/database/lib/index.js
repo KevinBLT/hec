@@ -1,1 +1,1 @@
-export * from './src/driver/postgres.js';
+export * from './src/node.js';
