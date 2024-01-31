@@ -11,7 +11,7 @@ import path from 'path';
  *   errorPages?: { [key: number]: string }
  * }} options 
  * 
- * @returns { import('../../src/routing/route.js').RouteRequest<T> }
+ * @returns { (request: Request) => Promise<Response> }
  * 
  * @description 
  * Option `fileProvder` is called to retrieve a file

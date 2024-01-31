@@ -12,7 +12,7 @@ import path               from 'path';
  *   cacheDuration?: number,
  *   proxy?: (request: Request) => Promise<Response>
  * }} options 
- * @returns { import('../../src/routing/route.js').RouteRequest<T> }
+ * @returns { (request: Request) => Promise<Response> }
  * 
  * @description
  * Serves files from the specified `directory` with the given `cacheControl` header set.

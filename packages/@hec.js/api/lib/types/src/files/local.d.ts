@@ -7,7 +7,7 @@
  *   cacheDuration?: number,
  *   proxy?: (request: Request) => Promise<Response>
  * }} options
- * @returns { import('../../src/routing/route.js').RouteRequest<T> }
+ * @returns { (request: Request) => Promise<Response> }
  *
  * @description
  * Serves files from the specified `directory` with the given `cacheControl` header set.
@@ -23,7 +23,7 @@ export function files<T>(options?: {
     cacheControl?: string;
     cacheDuration?: number;
     proxy?: (request: Request) => Promise<Response>;
-}): import("../../src/routing/route.js").RouteRequest<T>;
+}): (request: Request) => Promise<Response>;
 export type FileInfo = {
     etag?: string;
     'last-modified'?: string;

@@ -9,7 +9,7 @@
  *   errorPages?: { [key: number]: string }
  * }} options
  *
- * @returns { import('../../src/routing/route.js').RouteRequest<T> }
+ * @returns { (request: Request) => Promise<Response> }
  *
  * @description
  * Option `fileProvder` is called to retrieve a file
@@ -30,4 +30,4 @@ export function pages<T>(options: {
     errorPages?: {
         [key: number]: string;
     };
-}): import("../../src/routing/route.js").RouteRequest<T>;
+}): (request: Request) => Promise<Response>;
