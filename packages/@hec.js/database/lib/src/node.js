@@ -1,6 +1,9 @@
 import { Database } from "./database.js";
 import { PostgresDB } from "./driver/postgres.js";
 
+export { Database } from "./database.js";
+
+
 /**
  * @param { { driver: 'postgres' | 'cockroach' } & Partial<Database> } connection 
  * @returns { Database }
