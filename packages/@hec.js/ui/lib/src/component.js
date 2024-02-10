@@ -82,7 +82,7 @@ export function component(name, props, fn) {
 
     async connectedCallback() {
       this.#lazy ??= this.hasAttribute('data-lazy');
-      
+
       if (this.#lazy && !this.#ready) {
         this.#ready = true;
         this.emit('::load', null, true);
@@ -91,6 +91,7 @@ export function component(name, props, fn) {
       } else if (this.#ready) {
         return this.emit('::mount');
       } else {
+        await Promise.resolve();
         this.emit('::load', null, true);
         this.#ready = true;
       }
@@ -105,17 +106,21 @@ export function component(name, props, fn) {
         shadow.append(node);
         
         this.emit('::loaded', null, true);
-        this.#aborts['::attributes'] = new AbortController();
         
         for (const k in props) {
+          const attr = this.getAttribute(k);
           
           if (!this.hasAttribute(k)) {
             this.setAttribute(k, props[k].toString());
           }
-
-          this.#signals[k].subscribe({ 
-            next: v => this.setAttribute(k, v.toString()) 
-          }, { signal: this.#aborts['::attributes'].signal });
+ 
+          if (!attr.startsWith('@parent.')) {
+            this.#aborts[k] ??= new AbortController();
+  
+            this.#signals[k].subscribe({ 
+              next: v => this.setAttribute(k, v.toString()) 
+            }, { signal: this.#aborts[k].signal });
+          }
         }
 
         this.dispatchEvent(new CustomEvent('::mount'));
@@ -158,15 +163,9 @@ export function component(name, props, fn) {
               parentProp  = prop(propsOf(parent), key) ?? prop(propsOf(this), key);
 
         if (isSignal(parentProp)) {
-          this.#aborts[p]?.abort(); 
-          this.#aborts[p] = new AbortController();
-          
-          signal(f(parentProp));
-          
-          parentProp.subscribe({ next: signal }, {
-            signal: this.#aborts[p].signal
-          });
-
+          this.#aborts[name]?.abort(); 
+          this.#aborts[name]  = new AbortController();
+          this.#signals[name] = parentProp; 
         } else {
           signal(parentProp);
         }
