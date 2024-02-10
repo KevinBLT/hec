@@ -1,12 +1,11 @@
 export class ApiRequest extends Request {
-  #props  = null;
-  #query  = null;
-  #data   = null;
-  #url    = null;
+  #props   = null;
+  #query   = null;
+  #data    = null;
+  #url     = null;
+  #cookies = null;
 
-  /**
-   * @type { function (string): any | undefined } 
-   */
+  /** @type { function (string): any | undefined } */
   param;
 
   /**
@@ -18,7 +17,6 @@ export class ApiRequest extends Request {
   }
 
   /**
-   * 
    * @param { string } key 
    * @returns { string }
    */
@@ -27,6 +25,16 @@ export class ApiRequest extends Request {
     this.#query ??= this.#url.searchParams;
   
     return this.#query.get(key);
+  }
+
+  /**
+   * @param { string } key 
+   * @returns { string }
+   */
+  cookie(key) {
+    this.#cookies ??= new URLSearchParams(this.headers.get('cookie') ?? '');
+  
+    return this.#cookies.get(key);
   }
   
   /**

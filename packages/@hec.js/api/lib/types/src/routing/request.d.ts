@@ -4,16 +4,18 @@ export class ApiRequest extends Request {
      * @param { RequestInit | undefined } init
      */
     constructor(request: ApiRequest | URL | string | Request, init?: RequestInit | undefined);
-    /**
-     * @type { function (string): any | undefined }
-     */
+    /** @type { function (string): any | undefined } */
     param: (arg0: string) => any | undefined;
     /**
-     *
      * @param { string } key
      * @returns { string }
      */
     query(key: string): string;
+    /**
+     * @param { string } key
+     * @returns { string }
+     */
+    cookie(key: string): string;
     /**
      * @param { string } key
      * @param { string | undefined } value
