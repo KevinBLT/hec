@@ -109,7 +109,11 @@ export class API {
           }
    
           // @ts-ignore: Group here are always full Route<T> instances
-          return route.fetch ? route : findRoute(request, route.group);
+          const matchingRoute = await (route.fetch ? route : findRoute(request, route.group));
+
+          if (matchingRoute) {
+            return matchingRoute;
+          }
         }
       }  
     } 
