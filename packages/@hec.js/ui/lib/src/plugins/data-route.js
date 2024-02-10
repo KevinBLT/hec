@@ -38,8 +38,12 @@ const update = () => {
   for (const route of routes) {
     const isMatch = route.pattern.test(href);
 
-    if (!route.node.parentNode && (route.negate ? !isMatch : isMatch)) {
+    if ((route.negate ? !isMatch : isMatch)) {
       route.node.hidden = false;
+      
+      if (route.node.parentNode) {
+        continue;
+      }
 
       route.placeholder.after(route.node);
       
