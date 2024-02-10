@@ -15,7 +15,7 @@ export const dataBindPlugin = {
   select: '[data-bind],[name]',
 
   run: (node, props) => {
-    const key = node.getAttribute('name') || node.dataset.bind,
+    const key = node.dataset.bind || node.getAttribute('name'),
           v   = prop(props, key);
 
     if (v) {
