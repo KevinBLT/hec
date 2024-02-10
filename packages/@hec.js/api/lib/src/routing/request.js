@@ -41,7 +41,7 @@ export class ApiRequest extends Request {
   
   /**
    * @param { string } key 
-   * @param { string | undefined } value 
+   * @param { any } value 
    * @returns { void | any }
    */
   prop(key, value = undefined) {

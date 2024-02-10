@@ -18,10 +18,10 @@ export class ApiRequest extends Request {
     cookie(key: string): string;
     /**
      * @param { string } key
-     * @param { string | undefined } value
+     * @param { any } value
      * @returns { void | any }
      */
-    prop(key: string, value?: string | undefined): void | any;
+    prop(key: string, value?: any): void | any;
     /**
      * @returns { Promise<Uint8Array | { [key: string]: any } | string> }
      */
