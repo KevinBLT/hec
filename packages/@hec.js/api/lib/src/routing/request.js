@@ -32,9 +32,11 @@ export class ApiRequest extends Request {
    * @returns { string }
    */
   cookie(key) {
-    this.#cookies ??= new URLSearchParams(this.headers.get('cookie') ?? '');
+    this.#cookies ??= Object.fromEntries(
+      (this.headers.get('cookie') ?? '').split(';').map(e => e.split('=').map(v => v.trim()))
+    );
   
-    return this.#cookies.get(key);
+    return this.#cookies[key];
   }
   
   /**
