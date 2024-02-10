@@ -108,7 +108,7 @@ export function component(name, props, fn) {
         this.emit('::loaded', null, true);
         
         for (const k in props) {
-          const attr = this.getAttribute(k);
+          const attr = this.getAttribute(k) ?? '';
           
           if (!this.hasAttribute(k)) {
             this.setAttribute(k, props[k].toString());
