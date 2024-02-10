@@ -5,20 +5,63 @@ import { route } from "../routing.js";
  * @returns { string }
  */
 const joinsRoutes = (node) => {
-  let route = node.dataset.route;
+  let route = node.dataset.route || node.dataset.routeNot;
+
+  if (route[0] == '/') {
+    return route;
+  }
 
   while (node = node.parentElement) {
-    if (node.dataset.route) {
-      route = node.dataset.route + route;
+    const parentRoute = node.dataset.route || node.dataset.routeNot;
+
+    if (parentRoute) {
+      route = parentRoute.replaceAll('*', '') + route;
     }
   }
 
-  return route.replaceAll(/\/+/g, '/');
+  return route.replaceAll(/\/+|\/\*\//g, '/');
 }
+
+/** 
+ * @type {{ 
+ *  node: HTMLElement, 
+ *  placeholder: Comment, 
+ *  pattern: URLPattern,
+ *  negate: boolean
+ * }[] }
+ */
+const routes = [];
+
+const update = () => {
+  const href = location.href.replace(/index\.*[a-z0-9]*$/gm, '');
+
+  for (const route of routes) {
+    const isMatch = route.pattern.test(href);
+
+    if (!route.node.parentNode && (route.negate ? !isMatch : isMatch)) {
+      route.node.hidden = false;
+
+      route.placeholder.after(route.node);
+      
+      /** @type { HTMLMetaElement } */
+      const meta = document.querySelector('head meta[name="route"]');
+  
+      if (meta) {
+        meta.content = route.pattern.pathname;
+      }
+  
+    } else if (route.node.localName != 'link') {
+      route.node.remove();
+    }
+  }
+
+}
+
+route.subscribe({ next: update });
 
 /** @type { import("../plugins.js").Plugin } */
 export const dataRoutePlugin = {
-  select: '[data-route]',
+  select: '[data-route], [data-route-not]',
 
   run: async (node) => {
 
@@ -29,31 +72,12 @@ export const dataRoutePlugin = {
     /* -- -- */
 
     const absoluteRoute = joinsRoutes(node),
-          pattern       = new URLPattern({pathname: absoluteRoute}),
+          pattern       = new URLPattern({ pathname: absoluteRoute }),
           placeholder   = document.createComment('route: ' + absoluteRoute);
 
     node.replaceWith(placeholder);
-  
-    const update = () => {
-      const href = location.href.replace(/index\.*[a-z0-9]*$/gm, '');
 
-      if (!node.parentNode && pattern.test(href)) {
-        node.hidden = false;
-        placeholder.after(node);
-        
-        /** @type { HTMLMetaElement } */
-        const meta = document.querySelector('head meta[name="route"]');
-
-        if (meta) {
-          meta.content = pattern.pathname;
-        }
-
-      } else if (node.localName != 'link') {
-        node.remove();
-      }
-    }
-
-    route.subscribe({ next: update });
+    routes.push({ node, pattern, placeholder, negate: node.hasAttribute('data-route-not') });
 
     update();    
   }

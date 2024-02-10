@@ -55,13 +55,20 @@
     </div>
 
     <div>
-      <h3>[data-route]: Shows a node only if a route matches.</h3>
+      <h3>[data-route / data-route-not]: Shows a node only if a route matches.</h3>
 
       <button onclick="history.pushState(null, null, './fu/')">Reveal</button>
+
+      <div data-route-not="/example/plugins/fu/">
+        I am here, not the other guy!
+        <div data-route-not="/ok">
+          OK :)
+        </div>
+      </div>
       
-      <div data-route="/example/plugins/fu/">
+      <div data-route="/example/plugins/fu/*">
         I am here!
-        <div data-route="/">
+        <div data-route="">
           OK :)
         </div>
       </div>
