@@ -7,6 +7,9 @@ import { f, setPropsOf, prop, hasProp, hasProps } from './props.js';
 /** @type {{ [key: string]: Promise<HTMLTemplateElement> }} */
 const templatesLoading = {}
 
+/** @type {{ [key: string]: Promise<string> }} */
+const resourcesLoading = {};
+
 /**
  * @param { string | URL } name
  * @param { {[key: string]: any } } props
@@ -38,13 +41,17 @@ export function templateByName(name, props = {}) {
             cssLoads = [];
 
       for (const link of cssLinks) {
-        cssLoads.push(fetch(link.href, { headers: { 'accept': 'text/css' } }).then(r => r.text()).then((css) => {
+        resourcesLoading[link.href] ??= fetch(link.href, { headers: { 'accept': 'text/css' } }).then(r => r.text());
+
+        resourcesLoading[link.href].then((css) => {
           const style = document.createElement('style');
 
           style.innerHTML = css;
 
           link.replaceWith(style);
-        }));
+        });
+
+        cssLoads.push(resourcesLoading[link.href]);
       }
 
       await Promise.all(cssLoads);
