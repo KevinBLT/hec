@@ -268,6 +268,10 @@ export function resource(fetch, initialValue = null) {
   const state = signal('pending');
 
   const update = async () => {
+
+    if (state() == 'pending') {
+      return;
+    }
     
     try {
       state('pending');
