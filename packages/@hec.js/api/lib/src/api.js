@@ -91,7 +91,9 @@ export class API {
            * @returns { string }
            */
           request.param = (key) => {
-            return (params ??= route.pattern.exec(request.url).pathname.groups)[key];
+            params ??= route.pattern.exec(context.url + (route.group ? '/' : '')).pathname.groups;
+            
+            return params[key];
           }
 
           if (route.middlewares) {

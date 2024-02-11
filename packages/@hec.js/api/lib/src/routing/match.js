@@ -40,7 +40,7 @@ export function routeMatch(request, route, context = {status: null, url: null, a
   context.url         ??= request.url.toLowerCase();
   context.status      ??= 404;
 
-  if (!route.pattern.test(context.url)) {
+  if (!route.pattern.test(context.url + (route.group ? '/' : ''))) {
     return false;
   }
 
