@@ -255,7 +255,7 @@ export function memo(fn, signals = [], value = null) {
  * is completed.
  * 
  * The resource can have three states 
- * - `null`: Everything loaded
+ * - `loaded`: Everything loaded
  * - `pending`: the fetcher is executing, stale data might be seen
  * - `error` an error occured and the error message is given in the error property
  */
@@ -265,7 +265,7 @@ export function resource(fetch, initialValue = null) {
   const value = signal(initialValue);
 
   /** @type { Signal<'pending' | 'error' | 'loaded'> } */
-  const state = signal('pending');
+  const state = signal('loaded');
 
   const update = async () => {
 
