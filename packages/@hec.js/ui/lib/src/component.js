@@ -47,7 +47,7 @@ export function component(name, props, fn) {
     /**
      * @param { string } eventName 
      * @param { (event: Event) => void } callback 
-     * @param { boolean | AddEventListenerOptions } options
+     * @param { boolean | AddEventListenerOptions | undefined } options
      */
     on(eventName, callback, options = null) {
       this.addEventListener(eventName, callback, options);
@@ -64,7 +64,7 @@ export function component(name, props, fn) {
     /**
      * @param { string } event 
      * @param { any } data 
-     * @param { boolean } [bubbles=false] 
+     * @param { boolean | undefined } [bubbles=false] 
      */
     emit(event, data = null, bubbles = false) {
       this.dispatchEvent(new CustomEvent(event, { 
