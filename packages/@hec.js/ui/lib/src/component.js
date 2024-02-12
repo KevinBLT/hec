@@ -12,6 +12,7 @@ import { isSignal, signal } from "./signal.js";
 
 /**
  * @typedef { { 
+ *   emit: (event: string, data?: null, bubbles?: boolean) => void,
  *   on: (
  *     eventName: string, 
  *     fn: (event: Event) => void, 
