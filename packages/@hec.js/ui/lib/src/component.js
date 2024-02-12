@@ -100,9 +100,19 @@ export function component(name, props, fn) {
       const shadow = this.shadowRoot ?? this.attachShadow({ mode: 'open' }),
             node   = fn(this.#signals, this);
 
-      /** @param { Node } node */
+      /** @param { Node | Element } node */
       const append = (node) => {
         setPropsOf(this, propsOf(node));
+
+        if ('querySelector' in node) {
+          const slot = node.querySelector('slot');
+
+          if (slot) {
+            while (slot.firstChild) {
+              this.append(slot.firstChild);
+            }
+          }
+        }
 
         shadow.append(node);
         

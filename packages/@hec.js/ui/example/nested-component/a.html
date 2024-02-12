@@ -1,5 +1,6 @@
 <div>{{ text }}</div>
 
-
-<c-b text="e.text" data-for="let e of list"></c-b>
-<c-c person="e" data-for="let e of list"></c-c>
+<slot>
+  <c-b text="e.text" data-for="let e of list"></c-b>
+  <c-c person="e" data-for="let e of list"></c-c>
+</slot>
