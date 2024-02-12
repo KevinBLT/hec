@@ -55,14 +55,6 @@ export function component(name, props, fn) {
     }
 
     /**
-     * @param { string } selector 
-     * @returns { Element | undefined }
-     */
-    querySelector(selector) {
-      return this.shadowRoot.querySelector(selector);
-    }
-
-    /**
      * @param { string } event 
      * @param { any } data 
      * @param { boolean | undefined } [bubbles=false] 
@@ -71,14 +63,6 @@ export function component(name, props, fn) {
       this.dispatchEvent(new CustomEvent(event, { 
         detail: data, bubbles 
       }));
-    }
-
-    /**
-     * @param { string } selector 
-     * @returns { NodeListOf<Element> | undefined }
-     */
-    querySelectorAll(selector) {
-      return this.shadowRoot.querySelectorAll(selector);
     }
 
     async connectedCallback() {
