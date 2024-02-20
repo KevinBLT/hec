@@ -152,7 +152,7 @@ export function component(name, props, fn) {
     attributeChangedCallback(name, _, value) {
       const [ p, signal ] = this.#propSignalByLowerKey(name);
 
-      if (value.startsWith('@parent.')) { // @ts-ignore
+      if (value?.startsWith('@parent.')) { // @ts-ignore
         const parent      = this.parentNode.host || this.parentNode,
               key         = value.slice(8),
               parentProp  = prop(propsOf(parent), key) ?? prop(propsOf(this), key);
