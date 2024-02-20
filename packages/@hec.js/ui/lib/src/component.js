@@ -106,14 +106,14 @@ export function component(name, props, fn) {
           const attr = this.getAttribute(k) ?? '';
           
           if (!this.hasAttribute(k)) {
-            this.setAttribute(k, props[k].toString());
+            this.setAttribute(k, props[k]?.toString());
           }
  
           if (!attr.startsWith('@parent.')) {
             this.#aborts[k] ??= new AbortController();
   
             this.#signals[k].subscribe({ 
-              next: v => this.setAttribute(k, v.toString()) 
+              next: v => v == null ? this.removeAttribute(k) : this.setAttribute(k, v.toString())
             }, { signal: this.#aborts[k].signal });
           }
         }
