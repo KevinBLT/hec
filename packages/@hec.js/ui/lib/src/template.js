@@ -101,8 +101,7 @@ export function templateByNode(template, props = {}) {
       setPropsOf(node, props);
     }
 
-    if (node instanceof HTMLElement) {
-      
+    if (node instanceof HTMLElement || node instanceof SVGElement) {
       
       setPropsOf(node, props);
 
@@ -149,7 +148,7 @@ export function templateByNode(template, props = {}) {
 }
 
 /**
- * @param { HTMLElement } node 
+ * @param { HTMLElement | SVGElement } node 
  * @param { {[key: string]: any } } props
  */
 export const executeNodeAttributesTemplate = (node, props) => {

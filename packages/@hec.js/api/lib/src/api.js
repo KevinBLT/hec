@@ -126,11 +126,6 @@ export class API {
       const response = await route.fetch(apiRequest, this.#context);
       
       if (response) {
-
-        if (route.contentType && !route.contentType.includes('*')) {
-          response.headers.set('content-type', route.contentType);
-        }
-        
         return response;
       }
     }

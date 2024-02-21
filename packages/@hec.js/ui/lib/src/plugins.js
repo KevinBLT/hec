@@ -18,7 +18,7 @@ import { dataRoutePlugin } from "./plugins/data-route.js";
 
 /** 
  * @template [T=HTMLElement]
- * @type { Plugin<HTMLElement | HTMLInputElement>[] } 
+ * @type { Plugin<HTMLElement | HTMLInputElement | SVGElement>[] } 
  */
 export const plugins = [ 
   dataForPlugin,
