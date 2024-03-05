@@ -126,7 +126,7 @@ export function templateByNode(template, props = {}) {
         text = document.createTextNode(parts[i]);
 
         if ((i % 2) != 0) {
-          bindExpressions(`{{${parts[i]}}}`, props, (v) => text.data = v.replaceAll('<null>', ''));
+          bindExpressions(`{{${parts[i]}}}`, props, (v) => text.data = v);
         }
 
         done.add(text);
@@ -165,13 +165,13 @@ export const executeNodeAttributesTemplate = (node, props) => {
       
       bindExpressions(attribute, props, (text) => {
         text = text.trim().replace(/ +/, ' ');
-  
-        if (text === '<null>') {
+
+        if (text === 'undefined' || text === 'null') {
           node.removeAttribute(attributeName);
         } else {
           node.setAttribute(attributeName, text);
         }
-  
+
       });
   
     } else if (node.localName.includes('-') && hasProp(props, attribute)) {
@@ -183,7 +183,7 @@ export const executeNodeAttributesTemplate = (node, props) => {
 /**
  * @param { string } text
  * @param { {[key: string]: any } } props
- * @param { function(string): void } update
+ * @param { (text: string | null) => void } update
  */
 const bindExpressions = (text, props, update) => {
 
@@ -195,8 +195,7 @@ const bindExpressions = (text, props, update) => {
     text = sourceText;
 
     for (const exp of expressions) {
-      const v = f(exp.value);
-      text = text.replace(exp.text, v ?? '<null>');
+      text = text.replace(exp.text, f(exp.value));
     }
 
     return text;

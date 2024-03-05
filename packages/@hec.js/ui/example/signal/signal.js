@@ -8,6 +8,7 @@ const lotNumber = signal(randomLotNumber());
 
 const someWinner = {
   name: 'Joey',
+  none: null,
   age: 18 + Math.round(Math.random() * 30),
   lot: {
     number: lotNumber,
@@ -21,7 +22,7 @@ document.body.append(
   templateByString(
     `
       <div>
-        <strong>{{ name }}, {{ age }}yo</strong>
+        <strong data-name="{{ none }}">{{ name }}, {{ age }}yo</strong>
         <div>
           Number: {{ lot.number }}
         </div>
