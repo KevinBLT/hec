@@ -30,7 +30,7 @@ const sharedStorage = {
   items: new Map(),
   
   setItem(key, value) {
-    this.items.set(key, value.toString());
+    this.items.set(key, value?.toString());
   },
 
   get length() {
@@ -152,7 +152,7 @@ export function signal(value = null, options = {}) {
   const s = Object.assign(__signal, {
     id: options.id,
     storage: options.storage,
-    toString: () => value.toString(),
+    toString: () => value?.toString(),
     set: (v) => value = v,
     update,
     subscribe,
@@ -313,9 +313,47 @@ export function resourceBy(prop, fetch, initialValue = null) {
   return r;
 }
 
+/** 
+ * @template T
+ * @typedef { () => { provide: (value?: any) => void } & Signal<T> } Provider<T> 
+ */
+
 /**
  * @template T
- * @param { any | Signal<T> } s 
- * @returns { s is Signal<T> } 
+ * @param { any | Signal<T> } signal 
+ * @returns { signal is Signal<T> } 
  */
-export const isSignal = (s) => s && s.subscribe;
+export function isSignal(signal) {
+  return signal && signal.subscribe;
+}
+
+/**
+ * @template T
+ * @param { (value?: any) => T } provide 
+ * @param { Signal<any>[] } signals 
+ * @returns { Provider<T> }
+ */
+export function provider(provide, signals = []) {
+
+ function __provider() {
+
+    /** @type { Signal<T> } */
+    let value    = signal(null),
+        provided = null;
+
+    /** @param { any } v */
+    const _provide = (v) => {
+      provided = v;
+
+      value(provide(v));
+    }
+
+    for (const signal of signals) {
+      signal.subscribe({ next: () => value(provide(provided)) });
+    }
+
+    return Object.assign({ provide: _provide }, value); 
+  }
+
+  return __provider;
+}

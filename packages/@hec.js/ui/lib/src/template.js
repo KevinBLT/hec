@@ -202,9 +202,27 @@ const bindExpressions = (text, props, update) => {
   };
 
   for (const exp of expressions) {
-    const value = prop(props, exp.prop);
+    let value = null;
 
-    if (value == undefined) {
+    if (exp.prop[exp.prop.length - 1] === ')') {
+      const propSplit = exp.prop.split('('),
+            provider  = prop(props, propSplit[1].substring(0, propSplit[1].length - 1).trim()),
+            propKey   = propSplit[0].trim();
+
+      value = prop(props, propKey);
+      value = value();
+
+      value.provide(f(provider));
+
+      if (isSignal(provider)) {
+        provider.subscribe({ next: (v) => value.resolve(f(v)) });
+      }
+
+    } else {
+      value = prop(props, exp.prop);
+    }
+
+    if (value === undefined || value === null) {
       console.warn(`{{ ${exp.prop} }}: No value for this key`, { key: exp.prop, value });
     }
 
