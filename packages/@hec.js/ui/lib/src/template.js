@@ -2,6 +2,8 @@ import { expression } from './expression.js';
 import { pipes } from './pipes.js';
 import { plugins } from './plugins.js';
 import { isSignal } from './signal.js';
+import { updateRouting } from './routing.js';
+
 import { f, setPropsOf, prop, hasProp, hasProps } from './props.js';
 
 /** @type {{ [key: string]: Promise<HTMLTemplateElement> }} */
@@ -143,6 +145,8 @@ export function templateByNode(template, props = {}) {
   };
 
   findExpression(template, new WeakSet());
+
+  queueMicrotask(updateRouting);
 
   return template;
 }

@@ -3,16 +3,18 @@ import { f, prop } from "../props.js";
 
 /** @type { import("../plugins.js").Plugin } */
 export const dataIfPlugin = {
-  select: '[data-if]',
+  select: '[data-if], [data-if-not]',
 
   run: (node, props) => {
-    const condition   = prop(props, node.dataset.if),
-          placeholder = document.createComment('if: ' + node.dataset.if);
+    const condition   = prop(props, (node.dataset.if || node.dataset.ifNot)),
+          placeholder = document.createComment('if: ' + (node.dataset.if || node.dataset.ifNot)),
+          negate      = !!node.dataset.ifNot;
   
     node.replaceWith(placeholder);
     
     /** @param { boolean } condition */ 
     const update = (condition) => {
+      condition = negate ? !condition : condition;
 
       if (!node.parentNode && condition) {
         node.hidden = false;

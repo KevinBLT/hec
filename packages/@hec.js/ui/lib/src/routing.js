@@ -3,35 +3,117 @@ import { signal } from "./signal.js";
 export const query = signal({});
 export const route = signal(location.pathname);
 
+const _pushState    = window.history.pushState,
+      _replaceState = window.history.replaceState;
+
+/** 
+ * @typedef {{  
+ *  pattern?: URLPattern,
+ *  update: (visible: boolean) => void, 
+ *  group?: Route[],
+ *  path: string,
+ *  node: (HTMLElement | SVGElement)
+ * }} Route
+ * @type { Route[] }
+ */
+const routes = [];
+
+/** @type { WeakMap<Node, Route> } */
+const routingNodes = new WeakMap();
+
+/**
+ * @param { Route } a 
+ * @param { Route } b 
+ * @returns { number }
+ */
+export function routeCompare(a,b) {
+  let ap = Array.from(a.path.matchAll(/\:/g)).length * 25,
+      bp = Array.from(b.path.matchAll(/\:/g)).length * 25;
+
+  ap += Array.from(a.path.matchAll(/\*/g)).length * 150;
+  bp += Array.from(b.path.matchAll(/\*/g)).length * 150;
+
+  return ap - bp;
+}
+
+/** @param { Route } route  */
+export function addRoute(route) {
+  let node         = route.node,
+      path         = route.path,
+      parent       = node.parentElement?.closest('[data-route]'),
+      parentRoute  = routingNodes.get(parent),
+      parentPath   = parentRoute?.pattern?.pathname,
+      targetRoutes = parentRoute?.group ?? routes;
+
+  route.group = [];
+
+  routingNodes.set(node, route);
+
+  if (parentPath) {
+    path = parentPath.replaceAll(/[^\/a-zA-Z0-9]+$/gm, '') + path.replaceAll(/^[^\/a-zA-Z0-9]+/gm, '');
+  }  
+
+  route.pattern = new URLPattern({ pathname: path });
+    
+  targetRoutes.push(route);
+  targetRoutes.sort(routeCompare);
+}
+
 export function navigate(path = '') {
   window.history.pushState(null, null, path);
 }
 
 /** @type { HTMLMetaElement } */
-let meta = document.querySelector('head meta[name="route"]');
+const meta = document.querySelector('head meta[name="route"]') || document.createElement('meta');
 
-if (!meta) {
-  meta         = document.createElement('meta');
-  meta.name    = 'route';
-  meta.content = location.pathname;
+meta.name    = 'route';
+meta.content = location.pathname;
 
-  document.head.append(meta);
-}
+document.head.append(meta);
 
-const update = () => {
-  meta.content = '';
-  
-  route(location.pathname);
+export const updateRouting = () => {
+  const href = location.href.replace(/index\.*[a-z0-9]*$/gm, '');
+
+  route(href);
   query(Object.fromEntries(new URLSearchParams(location.search)));
 
-  meta.content = meta.content || location.pathname;
+  /** @param { Route[] } routes */
+  const updateGroup = (routes) => {
+    let firstMatch = false;
+
+    for (const route of routes) {
+      const isMatch = route.pattern.test(href);
+
+      route.update(!firstMatch && isMatch);
+      
+      if (isMatch) {
+        firstMatch   = true;
+        meta.content = route.pattern.pathname;
+
+        updateGroup(route.group);
+      }
+    }
+  }
+
+  updateGroup(routes);
 }
 
-window.addEventListener('popstate',   update);
-window.addEventListener('hashchange', update);
+const onNavigate = (event) => {
+  const href = event.target.closest('a')?.href,
+        url  = new URL(href, location.href);
 
-const _pushState    = window.history.pushState,
-      _replaceState = window.history.replaceState;
+  if (href && url.hostname == location.hostname) {
+    if (routes.some(e => e.pattern.test(href))) {
+      history.pushState(null, null, href);
+      event.preventDefault();
+    }
+  }
+
+}
+
+window.addEventListener('popstate',   updateRouting);
+window.addEventListener('hashchange', updateRouting);
+window.addEventListener('click',      onNavigate);
 
 window.history.pushState = function pushState(
   /** @type {any} */ data, 
@@ -39,7 +121,8 @@ window.history.pushState = function pushState(
   /** @type {string | URL} */ url
 ) {
   _pushState.call(window.history, data, _, url);
-  update();
+
+  updateRouting();
 }
 
 window.history.replaceState = function replaceState(
@@ -48,5 +131,6 @@ window.history.replaceState = function replaceState(
   /** @type {string | URL} */ url
 ) {
   _replaceState.call(window.history, data, _, url);
-  update();
+
+  updateRouting();
 }

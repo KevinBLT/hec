@@ -15,7 +15,7 @@ export function integrateRoute(route, parent = null) {
   route.accept      ??= parent?.accept;
   route.pattern     ??= new URLPattern({
     pathname: (
-      route.group ? `${route.path}/*` : route.path
+      route.group ? `${route.path}/*?` : route.path
     ).replaceAll('//', '/'),
   });
 

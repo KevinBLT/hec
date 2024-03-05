@@ -26,6 +26,7 @@ const asText = (path = '/') => api.fetch(path).then((r) => r.text());
 test('Single and default Routing', async () => {
   expect(await asText('/a')).toBe('A');
   expect(await asText('/b')).toBe('b');
+  expect(await asText('/foo')).toBe('bar');
   expect(await asText('/foobar/bar')).toBe('*');
 });
 

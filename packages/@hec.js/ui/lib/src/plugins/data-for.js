@@ -32,7 +32,7 @@ export const dataForPlugin = {
       let n = placeholder;
 
       while (n = n.nextSibling) {
-        if (n instanceof HTMLElement && n.dataset.for == node.dataset.for) {
+        if ((n instanceof HTMLElement || n instanceof SVGElement) && n.dataset.for == node.dataset.for) {
           n = n.previousSibling;
           n.nextSibling.remove();
         } else {
