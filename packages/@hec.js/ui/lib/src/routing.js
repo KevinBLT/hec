@@ -50,10 +50,11 @@ export function addRoute(route) {
   routingNodes.set(node, route);
 
   if (parentPath) {
+    path = path == '/' ? '' : path;
     path = parentPath.replaceAll(/[^\/a-zA-Z0-9]+$/gm, '') + path.replaceAll(/^[^\/a-zA-Z0-9]+/gm, '');
   }  
 
-  route.pattern = new URLPattern({ pathname: path });
+  route.pattern = new URLPattern({ pathname: path.replaceAll(/\+/g, '/').replace(/\/$/m, '') });
     
   targetRoutes.push(route);
   targetRoutes.sort(routeCompare);

@@ -12,10 +12,13 @@ document.body.append(
 
       <div data-route="/a">= /A</div>
 
-      <div data-route="/:b">= /:B</div>
+      <div data-route="/a/a/a/:b">= /:B</div>
 
-      <div data-route="/(a|b)/*?">
+      <div data-route="/(a|b|c)/*?">
+
         <div>A / B</div>
+
+        <div data-route="/"> / </div>
 
         <div data-route="x">(A | B) / X</div>
       </div>
