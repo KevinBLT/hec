@@ -52,9 +52,11 @@ export function addRoute(route) {
   if (parentPath) {
     path = path == '/' ? '' : path;
     path = parentPath.replaceAll(/[^\/a-zA-Z0-9]+$/gm, '') + path.replaceAll(/^[^\/a-zA-Z0-9]+/gm, '');
-  }  
+  }
 
-  route.pattern = new URLPattern({ pathname: path.replaceAll(/\/+/g, '/').replace(/\/$/m, '') });
+  path = path.replaceAll(/\/+/g, '/').replace(/\/$/m, '');
+
+  route.pattern = new URLPattern({ pathname: !path ? '/' : path });
     
   targetRoutes.push(route);
   targetRoutes.sort(routeCompare);
