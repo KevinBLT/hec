@@ -5,5 +5,5 @@ export function hexToColor(hexString = '#ffffff') {
     r: (num >>> 16) & 0xFF,
     g: (num >>> 8)  & 0xFF,
     b: (num)        & 0xFF
-  }
+  };
 }

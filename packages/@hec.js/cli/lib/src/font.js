@@ -16,6 +16,7 @@ export async function font({input = './', fontName = 'icon', output = './icon.cs
 
     await mkdir(path.join(path.parse(output).dir)).catch(_ => null);
 
+    // @ts-ignore: No call signature
     await svgtofont({
       log      : false,
       src      : input,

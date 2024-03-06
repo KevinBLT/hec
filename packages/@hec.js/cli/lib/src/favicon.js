@@ -4,24 +4,25 @@ import svg2ico from 'svg-to-ico';
 import path    from 'path';
 import sharp   from 'sharp';
 
-export async function favicon({favicon = './favicon.svg', icoSizes = [16,32,48,64], output = './favicon.ico'}) {
+export async function favicon({ 
+  favicon  = './favicon.svg', 
+  icoSizes = [16, 32, 48, 64], 
+  output   = './favicon.ico' 
+}) {
 
   if (await stat(favicon)) {
     await mkdir(path.join(path.parse(output ?? favicon).dir)).catch(_ => null);
-
-    await svg2ico({
-      input_name: favicon,
-      output_name: output,
-      sizes: icoSizes
-    });
+    
+    // @ts-ignore: Expects wrong type in svg2ico itself
+    await svg2ico({ input_name: favicon, output_name: output, sizes: icoSizes });
   }
 }
 
 export async function icons({
-  favicon = './favicon.svg', 
-  iconSizes = [64, 128, 256, 512], 
-  background = {r: 255, g: 255, b: 255}, 
-  output = './icon-[size].png'
+  favicon    = './favicon.svg', 
+  iconSizes  = [64, 128, 256, 512], 
+  background = { r: 255, g: 255, b: 255 }, 
+  output     = './icon-[size].png'
 }) {
   const dir = path.parse(output).dir;
 
@@ -31,9 +32,8 @@ export async function icons({
     await mkdir(dir).catch(_ => null);
 
     for (const size of iconSizes) {
-
       svg.clone().resize(size, size).toFile(
-        path.join((output ?? favicon).replace('[size]', size))
+        path.join((output ?? favicon).replaceAll('[size]', size.toString()))
       );
     }
   } 
