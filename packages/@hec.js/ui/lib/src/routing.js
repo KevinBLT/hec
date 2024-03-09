@@ -62,7 +62,7 @@ export function addRoute(route) {
   targetRoutes.push(route);
   targetRoutes.sort(routeCompare);
 
-  if (state.updateQueued) {
+  if (!state.updateQueued) {
     state.updateQueued = true;
 
     queueMicrotask(updateRouting);
