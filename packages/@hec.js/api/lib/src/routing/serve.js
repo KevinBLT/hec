@@ -11,8 +11,12 @@ export function serveBy(fetch) {
    * @param { import('http').ServerResponse } res 
    */
   return (req, res) => {
+    const scheme = req.headers['x-forwarded-proto'] ?? (
+      req.headers['cf-visitor']?.includes('https') ? 'https' : null
+    ) ?? 'http';
+
     fetch(
-      new Request(`http://${req.headers.host}${req.url}`, {
+      new Request(`${ scheme }://${ req.headers.host }${ req.url }`, {
         method: req.method,
         duplex: 'half',
         // @ts-ignore
@@ -32,8 +36,10 @@ export function serveBy(fetch) {
       res.statusCode = response.status;
       
       for (const e of response.headers.entries()) {
-        res.setHeader(e[0], e[1]);
+        res.appendHeader(e[0], e[1]);
       }
+
+      res.flushHeaders();
       
       if (response.body) {
         // @ts-ignore
