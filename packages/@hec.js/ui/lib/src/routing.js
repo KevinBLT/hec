@@ -93,12 +93,12 @@ export const updateRouting = () => {
         firstMatch   = true;
         meta.content = route.pattern.pathname;
 
-        updateGroup(route.group);
+        return route.group.length ? updateGroup(route.group) : true;
       }
     }
   }
 
-  updateGroup(routes);
+  return updateGroup(routes);
 }
 
 const onNavigate = (event) => {
@@ -107,8 +107,11 @@ const onNavigate = (event) => {
 
   if (href && url.hostname == location.hostname) {
     if (routes.some(e => e.pattern.test(href))) {
-      history.pushState(null, null, href);
-      event.preventDefault();
+      _pushState.call(window.history, null, null, href);
+
+      if (updateRouting()) {
+        event.preventDefault();
+      }
     }
   }
 
