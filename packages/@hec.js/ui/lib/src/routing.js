@@ -4,7 +4,8 @@ export const query = signal({});
 export const route = signal(location.pathname);
 
 const _pushState    = window.history.pushState,
-      _replaceState = window.history.replaceState;
+      _replaceState = window.history.replaceState,
+      state         = { updateQueued: false };
 
 /** 
  * @typedef {{  
@@ -60,6 +61,12 @@ export function addRoute(route) {
     
   targetRoutes.push(route);
   targetRoutes.sort(routeCompare);
+
+  if (state.updateQueued) {
+    state.updateQueued = true;
+
+    queueMicrotask(updateRouting);
+  }
 }
 
 export function navigate(path = '') {
@@ -105,6 +112,8 @@ export const updateRouting = () => {
 
     return hasFullMatch;
   }
+
+  state.updateQueued = false;
 
   return updateGroup(routes);
 }

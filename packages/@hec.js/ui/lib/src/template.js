@@ -146,8 +146,6 @@ export function templateByNode(template, props = {}) {
 
   findExpression(template, new WeakSet());
 
-  queueMicrotask(updateRouting);
-
   return template;
 }
 
