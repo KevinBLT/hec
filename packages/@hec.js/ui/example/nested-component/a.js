@@ -1,6 +1,6 @@
-import { component, templateByName } from '../../lib/index.js';
+import { templateByName, view } from '../../lib/index.js';
 
-component('c-a', { text: 'Hi' }, (props) => {
+view('a', { text: 'Hi' }, (props) => {
   
   const list = Array.from({ length: 2 }, () => ({ text: props.text }));
 

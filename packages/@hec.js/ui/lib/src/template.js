@@ -2,15 +2,11 @@ import { expression } from './expression.js';
 import { pipes } from './pipes.js';
 import { plugins } from './plugins.js';
 import { isSignal } from './signal.js';
-import { updateRouting } from './routing.js';
-
 import { f, setPropsOf, prop, hasProp, hasProps } from './props.js';
+import { componentSelector } from './component.js';
 
 /** @type {{ [key: string]: Promise<HTMLTemplateElement> }} */
-const templatesLoading = {}
-
-/** @type {{ [key: string]: Promise<string> }} */
-const resourcesLoading = {};
+const templatesLoading = {};
 
 /**
  * @param { string | URL } name
@@ -37,26 +33,6 @@ export function templateByName(name, props = {}) {
       tmpl.innerHTML = await fetch(
         meta?.content?.replaceAll('[name]', name.toString()) ?? name
       ).then((r) => r.text());
-
-      /** @type { NodeListOf<HTMLLinkElement> } */
-      const cssLinks = tmpl.content.querySelectorAll('link[rel="stylesheet"][href]'),
-            cssLoads = [];
-
-      for (const link of cssLinks) {
-        resourcesLoading[link.href] ??= fetch(link.href, { headers: { 'accept': 'text/css' } }).then(r => r.text());
-
-        resourcesLoading[link.href].then((css) => {
-          const style = document.createElement('style');
-
-          style.innerHTML = css;
-
-          link.replaceWith(style);
-        });
-
-        cssLoads.push(resourcesLoading[link.href]);
-      }
-
-      await Promise.all(cssLoads);
 
       document.body.append(tmpl);
 
@@ -172,8 +148,8 @@ export const executeNodeAttributesTemplate = (node, props) => {
 
       });
   
-    } else if (node.localName.includes('-') && hasProp(props, attribute)) {
-      node.setAttribute(attributeName, `@parent.${attribute}`);
+    } else if (node.matches(componentSelector) && hasProp(props, attribute)) {
+      node.setAttribute(attributeName, `@${attribute}`);
     }
   }
 }

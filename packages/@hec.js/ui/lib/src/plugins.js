@@ -7,6 +7,7 @@ import { dataLazyPlugin } from "./plugins/data-lazy.js";
 import { dataOnPlugin } from "./plugins/data-on.js";
 import { dataPreloadPlugin } from "./plugins/data-preload.js";
 import { dataRoutePlugin } from "./plugins/data-route.js";
+import { dataComponentPlugin } from "./plugins/data-component.js";
 
 /**
  * @template [T=HTMLElement]
@@ -21,6 +22,7 @@ import { dataRoutePlugin } from "./plugins/data-route.js";
  * @type { Plugin<HTMLElement | HTMLInputElement | SVGElement>[] } 
  */
 export const plugins = [ 
+  dataComponentPlugin,
   dataForPlugin,
   dataIfPlugin,
   dataRoutePlugin,

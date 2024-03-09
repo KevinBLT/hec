@@ -2,7 +2,7 @@ import { component, resource, templateByString } from '../../lib/index.js';
 
 component('my-beer', {}, () => {
 
-  const beer = resource(() => fetch('https://random-data-api.com/api/v2/beers').then(r => r.hhjson()));
+  const beer = resource(() => fetch('https://random-data-api.com/api/v2/beers').then(r => r.json()));
 
   const jsonText = beer.map(e => e && JSON.stringify(e, null, 2));
   

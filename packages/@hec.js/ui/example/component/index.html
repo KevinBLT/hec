@@ -7,7 +7,7 @@
     <script type="module" async src="./component.js"></script>
 
     <style>
-      my-counter {
+      [data-component="my-counter"] {
         min-height: 10rem;
         display: block;
       }
@@ -15,13 +15,13 @@
   </head>
   <body>
     
-    <my-counter data-lazy data-for="let e of list" camelCase="{{ e.count }}" count="{{ e.count }}"></my-counter>
+    <div data-component="my-counter" data-lazy data-for="let e of list" camelCase="{{ e.count }}" count="{{ e.count }}"></div>
 
     <script type="module">
       import { templateByNode } from '../../lib/index.js';
 
       templateByNode(document.body, {
-        list: Array.from({ length: Math.round(Math.random() * 1000)}, () => (
+        list: Array.from({ length: Math.round(Math.random() * 10)}, () => (
           { count: Math.round(Math.random() * 0xffffff) })
         ),
       });

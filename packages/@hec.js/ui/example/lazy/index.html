@@ -38,7 +38,7 @@
           Inline 4 {{ name }}
         </div>  
 
-        <my-test data-lazy data-test="{{ name }}"></my-test>
+        <div data-component="my-test" data-lazy data-test="{{ name }}"></div>
 
         <div  data-test="{{ name }}" data-lazy="--loading" data-include="include.html"></div>
       </div>  
@@ -48,6 +48,6 @@
 
     <div hidden data-lazy data-include="include.html"></div>
 
-    <my-test hidden data-lazy></my-test>
+    <div data-component="my-test" hidden data-lazy></div>
   </body>
 </html>
