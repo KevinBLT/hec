@@ -91,7 +91,7 @@ export const updateRouting = () => {
 
       route.update(!hasMatch && isMatch);
       
-      if (isMatch) {
+      if (!hasMatch && isMatch) {
         hasMatch = true;
 
         if (route.group.length) {
