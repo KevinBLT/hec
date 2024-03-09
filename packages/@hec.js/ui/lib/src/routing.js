@@ -80,22 +80,30 @@ export const updateRouting = () => {
   route(href);
   query(Object.fromEntries(new URLSearchParams(location.search)));
 
+  let hasFullMatch = false;
+
   /** @param { Route[] } routes */
   const updateGroup = (routes) => {
-    let firstMatch = false;
+    let hasMatch = false;
 
     for (const route of routes) {
       const isMatch = route.pattern.test(href);
 
-      route.update(!firstMatch && isMatch);
+      route.update(!hasMatch && isMatch);
       
       if (isMatch) {
-        firstMatch   = true;
-        meta.content = route.pattern.pathname;
+        hasMatch = true;
 
-        return route.group.length ? updateGroup(route.group) : true;
+        if (route.group.length) {
+          updateGroup(route.group);
+        } else {
+          hasFullMatch = true;
+          meta.content = route.pattern.pathname;
+        }
       }
     }
+
+    return hasFullMatch;
   }
 
   return updateGroup(routes);
