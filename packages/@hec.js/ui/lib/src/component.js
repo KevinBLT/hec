@@ -50,7 +50,7 @@ new MutationObserver((mutations) => {
  * @template T
  * @typedef { (
 *   props: {[R in keyof T]?: import("./signal.js").Signal<T[R]>}, 
-*   self: Component
+*   self: Element
 * ) => Element | Node | Promise<Element | Node> } ComponentConstructor
 */
 
@@ -134,7 +134,7 @@ class Component {
       await Promise.resolve();
     }
 
-    const template = fn(this.signals, this);
+    const template = fn(this.signals, this.node);
 
     /** @param { Element | Node } node */
     const append = (node) => {
