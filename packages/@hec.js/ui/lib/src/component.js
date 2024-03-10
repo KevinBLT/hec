@@ -101,36 +101,16 @@ class Component {
 
   #lazy = null;
 
-  /**
-   * @param { string } eventName 
-   * @param { (event: Event) => void } callback 
-   * @param { boolean | AddEventListenerOptions | undefined } options
-   */
-  on(eventName, callback, options = null) {
-    this.node.addEventListener(eventName, callback, options);
-  }
-
-  /**
-   * @param { string } event 
-   * @param { any } data 
-   * @param { boolean | undefined } [bubbles=false] 
-   */
-  emit(event, data = null, bubbles = false) {
-    this.node.dispatchEvent(new CustomEvent(event, { 
-      detail: data, bubbles 
-    }));
-  }
-
   /** @param { ComponentConstructor<T> } fn */
   async insert(fn) {
     this.#lazy ??= this.node.hasAttribute('data-lazy');
 
     if (this.#lazy) {
-      this.emit('::load', null, true);
+      this.node.dispatchEvent(new CustomEvent('::load'));
       this.node.removeAttribute('data-lazy');
       await notifyVisible(this.node);
     } else {
-      this.emit('::load', null, true);
+      this.node.dispatchEvent(new CustomEvent('::load'));
       await Promise.resolve();
     }
 
@@ -170,7 +150,7 @@ class Component {
         }
       }
 
-      this.emit('::loaded', null, true);
+      this.node.dispatchEvent(new CustomEvent('::loaded'));
       this.node.dispatchEvent(new CustomEvent('::mount'));
     }
 
