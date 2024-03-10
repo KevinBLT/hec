@@ -163,7 +163,7 @@ class Component {
    * @param { string } value 
    */
   attributeChange(name, _, value) {
-    const property = Object.entries(this.props).filter(e => e[0].toLowerCase() == name)[0];
+    const property = Object.entries(this.props).filter(e => e[0].toLowerCase() == name.toLowerCase())[0];
     
     if (value?.startsWith('@')) { 
       const parent      = this.node.parentNode,
