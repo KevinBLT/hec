@@ -8,11 +8,13 @@ const _pushState    = window.history.pushState,
       routeQueue    = [],
       state         = { updateQueued: false };
 
-new MutationObserver((mutations) => {
+new MutationObserver(() => {
   
-  for (const m of mutations) {
-    for (const n of m.addedNodes) {
-      console.log(n, n.dataset?.route);
+  if (routeQueue.length) {
+    const queue = Array.from(routeQueue);
+
+    for (const route of queue) {
+      addRoute(route);
     }
   }
   
