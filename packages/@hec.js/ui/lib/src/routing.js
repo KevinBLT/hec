@@ -9,12 +9,10 @@ const _pushState    = window.history.pushState,
       state         = { updateQueued: false };
 
 new MutationObserver(() => {
-  
-  if (routeQueue.length) {
-    const queue = Array.from(routeQueue);
 
-    for (const route of queue) {
-      addRoute(route);
+  for (let i = 0; i < routeQueue.length; i++) {
+    if (addRoute(routeQueue[i])) {
+      routeQueue.splice(i--, 1);
     }
   }
   
@@ -55,7 +53,10 @@ export function routeCompare(a,b) {
   return ap - bp;
 }
 
-/** @param { Route } route  */
+/** 
+ * @param { Route } route  
+ * @returns { boolean }
+ */
 export function addRoute(route) {
   let node         = route.node,
       path         = route.path,
@@ -67,7 +68,7 @@ export function addRoute(route) {
       targetRoutes = parentRoute?.group ?? routes;
 
   if (!parentNode) {
-    return routeQueue.push(route);
+    return routeQueue.push(route) && false;
   }
 
   route.group = [];
@@ -91,6 +92,8 @@ export function addRoute(route) {
 
     queueMicrotask(updateRouting);
   }
+
+  return true;
 }
 
 export function navigate(path = '') {
