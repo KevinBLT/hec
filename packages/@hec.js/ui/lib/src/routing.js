@@ -39,34 +39,38 @@ export function routeCompare(a,b) {
 
 /** @param { Route } route  */
 export function addRoute(route) {
-  let node         = route.node,
-      path         = route.path,
-      parent       = node.parentElement?.closest('[data-route]'),
-      parentRoute  = routingNodes.get(parent),
-      parentPath   = parentRoute?.pattern?.pathname,
-      targetRoutes = parentRoute?.group ?? routes;
 
-  route.group = [];
-
-  routingNodes.set(node, route);
-
-  if (parentPath) {
-    path = path == '/' ? '' : path;
-    path = parentPath.replaceAll(/[^\/a-zA-Z0-9]+$/gm, '') + path.replaceAll(/^[^\/a-zA-Z0-9]+/gm, '');
-  }
-
-  path = path.replaceAll(/\/+/g, '/').replace(/\/$/m, '');
-
-  route.pattern = new URLPattern({ pathname: !path ? '/' : path });
-    
-  targetRoutes.push(route);
-  targetRoutes.sort(routeCompare);
-
-  if (!state.updateQueued) {
-    state.updateQueued = true;
-
-    queueMicrotask(updateRouting);
-  }
+  queueMicrotask(() => {
+    let node         = route.node,
+        path         = route.path,
+        parent       = node.parentElement?.closest('[data-route]'),
+        parentRoute  = routingNodes.get(parent),
+        parentPath   = parentRoute?.pattern?.pathname,
+        targetRoutes = parentRoute?.group ?? routes;
+  
+    route.group = [];
+  
+    routingNodes.set(node, route);
+  
+    if (parentPath) {
+      path = path == '/' ? '' : path;
+      path = parentPath.replaceAll(/[^\/a-zA-Z0-9]+$/gm, '') + path.replaceAll(/^[^\/a-zA-Z0-9]+/gm, '');
+    }
+  
+    path = path.replaceAll(/\/+/g, '/').replace(/\/$/m, '');
+  
+    route.pattern = new URLPattern({ pathname: !path ? '/' : path });
+      
+    targetRoutes.push(route);
+    targetRoutes.sort(routeCompare);
+  
+    if (!state.updateQueued) {
+      state.updateQueued = true;
+  
+      queueMicrotask(updateRouting);
+    }
+  });
+  
 }
 
 export function navigate(path = '') {
