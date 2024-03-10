@@ -5,7 +5,22 @@ export const route = signal(location.pathname);
 
 const _pushState    = window.history.pushState,
       _replaceState = window.history.replaceState,
+      routeQueue    = [],
       state         = { updateQueued: false };
+
+new MutationObserver((mutations) => {
+  
+  for (const m of mutations) {
+    for (const n of m.addedNodes) {
+      console.log(n, n.dataset?.route);
+    }
+  }
+  
+}).observe(document, { 
+  childList: true, 
+  subtree: true 
+});
+
 
 /** 
  * @typedef {{  
@@ -43,32 +58,37 @@ export function addRoute(route) {
   let node         = route.node,
       path         = route.path,
       placeholder  = route.placeholder,
-      parent       = (node.parentElement ?? placeholder?.parentElement)?.closest('[data-route]'),
+      parentNode   = (node.parentElement ?? placeholder?.parentElement),
+      parent       = parentNode?.closest('[data-route]'),
       parentRoute  = routingNodes.get(parent),
       parentPath   = parentRoute?.pattern?.pathname,
       targetRoutes = parentRoute?.group ?? routes;
 
-    route.group = [];
+  if (!parentNode) {
+    return routeQueue.push(route);
+  }
 
-    routingNodes.set(node, route);
+  route.group = [];
 
-    if (parentPath) {
+  routingNodes.set(node, route);
+
+  if (parentPath) {
     path = path == '/' ? '' : path;
     path = parentPath.replaceAll(/[^\/a-zA-Z0-9]+$/gm, '') + path.replaceAll(/^[^\/a-zA-Z0-9]+/gm, '');
-    }
+  }
 
-    path = path.replaceAll(/\/+/g, '/').replace(/\/$/m, '');
+  path = path.replaceAll(/\/+/g, '/').replace(/\/$/m, '');
 
-    route.pattern = new URLPattern({ pathname: !path ? '/' : path });
+  route.pattern = new URLPattern({ pathname: !path ? '/' : path });
 
-    targetRoutes.push(route);
-    targetRoutes.sort(routeCompare);
+  targetRoutes.push(route);
+  targetRoutes.sort(routeCompare);
 
-    if (!state.updateQueued) {
+  if (!state.updateQueued) {
     state.updateQueued = true;
 
     queueMicrotask(updateRouting);
-}
+  }
 }
 
 export function navigate(path = '') {
