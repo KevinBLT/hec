@@ -7,7 +7,11 @@
  * }} attributes 
  */
 export const preload = (attributes) => {
-  const link = document.createElement('link');
+
+  /** @type { HTMLLinkElement } */
+  const link = document.head.querySelector(
+    `link[rel="preload"][href="${ attributes.href }"]`
+  ) ?? document.createElement('link');
 
   Object.assign(link, attributes);
 
