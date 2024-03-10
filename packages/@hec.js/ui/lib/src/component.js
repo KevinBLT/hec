@@ -140,7 +140,7 @@ class Component {
     const append = (node) => {
       setPropsOf(this, propsOf(node));
 
-      const children = Array.from(this.node.children);
+      const children = Array.from(this.node.childNodes);
 
       this.node.append(node);
 
