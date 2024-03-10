@@ -40,7 +40,7 @@ export function routeCompare(a,b) {
 /** @param { Route } route  */
 export function addRoute(route) {
 
-  queueMicrotask(() => {
+  requestAnimationFrame(() => {
     let node         = route.node,
         path         = route.path,
         parent       = node.parentElement?.closest('[data-route]'),
@@ -70,7 +70,7 @@ export function addRoute(route) {
       queueMicrotask(updateRouting);
     }
   });
-  
+
 }
 
 export function navigate(path = '') {
