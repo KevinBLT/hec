@@ -40,6 +40,10 @@ export function prop(props, key) {
     return props;
   }
 
+  if (!props) {
+    return null;
+  }
+
   for (const p of chain) {
 
     if (['state'].includes(p) && props?.state) {
@@ -100,7 +104,7 @@ export function prop(props, key) {
 export function hasProp(props, key) {
   const chain = key.split('.');
 
-  if (!key) {
+  if (!key || !props) {
     return false;
   }
 

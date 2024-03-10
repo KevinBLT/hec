@@ -148,8 +148,6 @@ export const executeNodeAttributesTemplate = (node, props) => {
 
       });
   
-    } else if (node.matches(componentSelector) && hasProp(props, attribute)) {
-      node.setAttribute(attributeName, `@${attribute}`);
     }
   }
 }

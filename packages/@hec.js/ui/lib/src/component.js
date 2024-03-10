@@ -4,23 +4,39 @@ import { isSignal, signal } from "./signal.js";
 
 export const componentSelector = '[data-component], [data-view], [data-page]';
 
+// TODO: Simplify this file?
+
+/**
+ * @param { string } name 
+ * @param { Element } root
+ */
+const updateComponents = (name, root = document.body, exec = useComponent) => {
+  const selector = componentSelector.replaceAll(']', `="${ name }"]`);
+
+  if (root.matches(selector)) {
+    exec(root, name);
+  }
+
+  for (const node of root.querySelectorAll(selector)) {
+    exec(node, name);
+  }
+}
+
 new MutationObserver((mutations) => {
   
   for (const mutation of mutations) {
 
     for (const node of mutation.addedNodes) {
-      const matchingType = node instanceof HTMLElement || node instanceof SVGElement;
-
-      if (matchingType && !activeComponents.has(node) && node.matches(componentSelector)) {
-        useComponent(node, node.dataset.component ?? node.dataset.view ?? node.dataset.page);
-      } else if (matchingType && activeComponents.has(node)) {
-        node.dispatchEvent(new CustomEvent('::mount'));
+      for (const key of Object.keys(registeredComponents)) {
+        updateComponents(key);
       }
     }
 
     for (const node of mutation.removedNodes) {
-      if (activeComponents.has(node)) {
-        node.dispatchEvent(new CustomEvent('::unmount'));
+      for (const key of Object.keys(registeredComponents)) {
+        if (node instanceof Element) {
+          updateComponents(key, node, (node) => node.dispatchEvent(new CustomEvent('::unmount')));
+        }
       }
     }
     
@@ -33,7 +49,7 @@ new MutationObserver((mutations) => {
 /**
  * @template T
  * @typedef { (
-*   props: {[R in keyof T]: import("./signal.js").Signal<T[R]>}, 
+*   props: {[R in keyof T]?: import("./signal.js").Signal<T[R]>}, 
 *   self: Component
 * ) => Element | Node | Promise<Element | Node> } ComponentConstructor
 */
@@ -51,11 +67,12 @@ export const activeComponents = new WeakMap();
  */
 export function useComponent(node, component) {
   
-  if (registeredComponents[component]) {
-    registeredComponents[component].use(node);
-    activeComponents.set(node, registeredComponents[component].component);
+  if (activeComponents.has(node) || !registeredComponents[component]) {
+    return;
   }
-
+  
+  registeredComponents[component].use(node);
+  activeComponents.set(node, registeredComponents[component].component);
 }
 
 /**
@@ -73,8 +90,8 @@ class Component {
     Object.assign(this, options);
   }
 
-  /** @type { {[R in keyof T]: import("./signal.js").Signal<T[R]>} } */
-  signals;
+  /** @type { {[R in keyof T]?: import("./signal.js").Signal<T[R]>} } */
+  signals = {};
 
   /** @type { Element } */
   node;
@@ -82,7 +99,6 @@ class Component {
   /** @type {{ [key: string]: any }} */
   props;
 
-  #ready = false;
   #lazy = null;
 
   /**
@@ -109,17 +125,13 @@ class Component {
   async insert(fn) {
     this.#lazy ??= this.node.hasAttribute('data-lazy');
 
-    if (this.#lazy && !this.#ready) {
-      this.#ready = true;
+    if (this.#lazy) {
       this.emit('::load', null, true);
       this.node.removeAttribute('data-lazy');
       await notifyVisible(this.node);
-    } else if (this.#ready) {
-      return this.emit('::mount');
     } else {
-      await Promise.resolve();
       this.emit('::load', null, true);
-      this.#ready = true;
+      await Promise.resolve();
     }
 
     const template = fn(this.signals, this);
@@ -128,19 +140,22 @@ class Component {
     const append = (node) => {
       setPropsOf(this, propsOf(node));
 
-      const slot = node instanceof Element && node.querySelector('slot');
-
-      if (slot) {
-        const placeholder = document.createComment('children');
-
-        slot.before(placeholder);
-        slot.replaceWith(...this.node.childNodes);
-      }
+      const children = Array.from(this.node.children);
 
       this.node.append(node);
-      
-      this.emit('::loaded', null, true);
-      
+
+      if (children.length) {
+        const slot          = this.node.querySelector('slot'),
+              childrenStart = document.createComment('children/'),
+              childrenEnd   = document.createComment('/children');
+
+        if (slot) {
+          slot.replaceWith(childrenStart, ...children, childrenEnd);
+        } else {
+          this.node.append(childrenStart, ...children);
+        }
+      } 
+
       for (const k in this.props) {
         const attr = this.node.getAttribute(k) ?? '';
         
@@ -155,26 +170,11 @@ class Component {
         }
       }
 
+      this.emit('::loaded', null, true);
       this.node.dispatchEvent(new CustomEvent('::mount'));
     }
 
     append(template instanceof Promise ? await template : template);
-  }
-
-  /** 
-   * @param { string } key 
-   * @returns { [ any, import("./signal.js").Signal<any> ] }
-   */
-  propSignalByLowerKey(key = '') {
-    key = key.toLowerCase();
-
-    for (const k in this.signals) {
-      if (k.toLowerCase() == key) {
-        return [ this.props[k], this.signals[k] ];
-      }
-    }
-
-    return [null, null];
   }
 
   /**
@@ -183,9 +183,9 @@ class Component {
    * @param { string } value 
    */
   attributeChange(name, _, value) {
-    const [ p, signal ] = this.propSignalByLowerKey(name);
-
-    if (value?.startsWith('@')) { // @ts-ignore
+    const property = Object.entries(this.props).filter(e => e[0].toLowerCase() == name)[0];
+    
+    if (value?.startsWith('@')) { 
       const parent      = this.node.parentNode,
             key         = value.slice(1),
             parentProp  = prop(propsOf(parent), key) ?? prop(propsOf(this.node), key);
@@ -193,12 +193,13 @@ class Component {
       if (isSignal(parentProp)) {
         this.signals[name] = parentProp;
       } else {
-        signal(parentProp);
+        this.signals[property[0]] ??= signal(parentProp);
+        this.signals[property[0]](parentProp);
       }
             
     } else {
-      // @ts-ignore
-      signal(typeof p == 'number' ? parseFloat(value) : value);
+      this.signals[property[0]] ??= signal(value);
+      this.signals[property[0]](typeof property[1] == 'number' ? parseFloat(value) : value);
     } 
   }
 };
@@ -230,13 +231,14 @@ export function component(name, props, fn) {
 
     use(node) {
 
-      this.component = new Component({
-        signals: Object.fromEntries(Object.entries(props).map(e => [e[0], signal(e[1])])),
-        props, node
-      }),
+      this.component = new Component({ props, node });
+
+      for (const key of Object.keys(props)) {
+        this.component.attributeChange(key, null, node.getAttribute(key) ?? props[key]);
+      }
 
       this.component.insert(fn);
-
+      
       this.observer.observe(node, {
         attributes: true,
         attributeOldValue: true,
@@ -245,11 +247,7 @@ export function component(name, props, fn) {
     }
   };
 
-  const selector = componentSelector.replaceAll(']', `="${ name }"]`);
-
-  for (const node of document.querySelectorAll(selector)) {
-    useComponent(node, name);
-  }
+  updateComponents(name, document.body);
 }
 
 export const view = component;

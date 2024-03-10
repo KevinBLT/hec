@@ -1,4 +1,9 @@
 <div>{{ text }}</div>
 
-<div data-component="c-b" text="e.text" data-for="let e of list"></div>
-<div data-component="c-c" person="e" data-for="let e of list"></div>
+<div data-component="c-b" text="@e.text" data-for="let e of list">
+  <span>I would like to B you!</span>
+</div>
+
+<div data-component="c-c" person="@e" data-for="let e of list">
+  <span>Hi! Nice to C you!</span>
+</div>
