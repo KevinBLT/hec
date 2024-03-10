@@ -32,7 +32,7 @@ export const dataRoutePlugin = {
       }
     }
     
-    addRoute({ path: route, update, node });
+    addRoute({ path: route, update, node, placeholder });
    
     node.replaceWith(placeholder);
   }
