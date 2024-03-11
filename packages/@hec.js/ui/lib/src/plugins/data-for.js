@@ -51,12 +51,11 @@ export const dataForPlugin = {
 
       for (let i = 0, /** @type { ChildNode } */ n = placeholder; i < list.length; i++) {
         const c = node.cloneNode(true),
-              p = Object.assign({}, props, {
-                [entry]: list[i], [index]: i
-              });
+              p = Object.assign({}, props, { [entry]: list[i], [index]: i });
 
         done.add(c);
-        n.after(templateByNode(c, p));
+        n.after(c);
+        templateByNode(c, p);
         n = n.nextSibling;
       }
     }

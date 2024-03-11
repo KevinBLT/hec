@@ -1,5 +1,6 @@
-import { notifyVisible } from '../notify/visible.js';
+import { onVisible } from '../notify.js';
 import { templateByNode } from '../template.js';
+import { lazyLoads } from './data-lazy.js';
 
 export const loaded = new WeakSet();
 
@@ -15,10 +16,10 @@ export const dataIncludePlugin = {
     
     loaded.add(node);
 
-    const hidden = node.hasAttribute('data-lazy') && node.closest('[hidden]');
-
     const execute = async () => {
       node.dispatchEvent(new CustomEvent('::load', { bubbles: true }));
+
+      node.classList.add('--loading');
 
       const response = await fetch(node.dataset.include, {
         headers: {
@@ -38,11 +39,13 @@ export const dataIncludePlugin = {
 
         node.removeAttribute('data-include');
         node.removeAttribute('data-lazy');
+        node.classList.remove('--loading');
       }
     }
 
     if (node.hasAttribute('data-lazy')) {
-      notifyVisible(node).then(execute);
+      lazyLoads.add(node);
+      onVisible(node).then(execute);
     } else {
       execute();
     }    

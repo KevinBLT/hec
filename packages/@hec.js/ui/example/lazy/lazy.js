@@ -33,24 +33,24 @@ component('my-test', {}, () => {
           age: signal(0, { id: 'person.age' })
         };
 
-  const visible = person.age.map(e => e % 3 != 0 || true);
+  const visible = person.age.map(e => e % 3 != 0);
 
   setInterval(() => person.age(person.age() + 1), 1500);
 
-  return templateByString('<div data-component="my-a" data-if="visible" data-lazy person="person" date="{{ date }}"></div>', { 
+  return templateByString('<div data-component="my-a" data-if="visible" data-lazy person="@person" date="{{ date }}"></div>', { 
     date, person, visible
   });
 });
 
 component('my-a', { date: '', person: null }, (props) => templateByString(`
   <strong>{{ date }}, {{ person.name }} ist: {{ person.age }}</strong>
-  <div data-component="my-b" data-lazy person="person" date="{{ date }}"></div>
+  <div data-component="my-b" data-lazy person="@person" date="{{ date }}"></div>
   <div style="height: 1000px"></div>
-  <div data-component="my-b" data-lazy person="person" date="{{ date }}"></div>
+  <div data-component="my-b" data-lazy person="@person" date="{{ date }}"></div>
   <div style="height: 1000px"></div>
-  <div data-component="my-b" data-lazy person="person" date="{{ date }}"></div>
+  <div data-component="my-b" data-lazy person="@person" date="{{ date }}"></div>
   <div style="height: 1000px"></div>
-  <div data-component="my-b" data-lazy person="person" date="{{ date }}"></div>
+  <div data-component="my-b" data-lazy person="@person" date="{{ date }}"></div>
 
   {{ unkownTestValue }}
 
@@ -61,7 +61,7 @@ component('my-a', { date: '', person: null }, (props) => templateByString(`
 component('my-b', { date: '', person: null }, (props) => templateByString(`
 
   <span>{{ date }}, {{ person.name }} ist: {{ person.age }}</span>
-  <div data-component="my-c" data-lazy person="person" date="{{ date }}"></div>
+  <div data-component="my-c" data-lazy person="@person" date="{{ date }}"></div>
 
 `, props));
 

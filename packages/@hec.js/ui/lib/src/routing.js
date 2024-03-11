@@ -1,3 +1,4 @@
+import { onMount } from "./notify.js";
 import { signal } from "./signal.js";
 
 export const query = signal({});
@@ -5,22 +6,15 @@ export const route = signal(location.pathname);
 
 const _pushState    = window.history.pushState,
       _replaceState = window.history.replaceState,
-      routeQueue    = [],
       state         = { updateQueued: false };
 
-new MutationObserver(() => {
+/** @type { HTMLMetaElement } */
+const meta = document.querySelector('head meta[name="route"]') || document.createElement('meta');
 
-  for (let i = 0; i < routeQueue.length; i++) {
-    if (addRoute(routeQueue[i])) {
-      routeQueue.splice(i--, 1);
-    }
-  }
-  
-}).observe(document, { 
-  childList: true, 
-  subtree: true 
-});
+meta.name    = 'route';
+meta.content = location.pathname;
 
+document.head.append(meta);
 
 /** 
  * @typedef {{  
@@ -43,7 +37,7 @@ const routingNodes = new WeakMap();
  * @param { Route } b 
  * @returns { number }
  */
-export function routeCompare(a,b) {
+function routeCompare(a,b) {
   let ap = Array.from(a.path.matchAll(/\:/g)).length * 25,
       bp = Array.from(b.path.matchAll(/\:/g)).length * 25;
 
@@ -53,10 +47,11 @@ export function routeCompare(a,b) {
   return ap - bp;
 }
 
-/** 
- * @param { Route } route  
- * @returns { boolean }
- */
+export function navigate(path = '') {
+  window.history.pushState(null, null, path);
+}
+
+/** @param { Route } route */
 export function addRoute(route) {
   let node         = route.node,
       path         = route.path,
@@ -67,8 +62,8 @@ export function addRoute(route) {
       parentPath   = parentRoute?.pattern?.pathname,
       targetRoutes = parentRoute?.group ?? routes;
 
-  if (!parentNode) {
-    return routeQueue.push(route) && false;
+  if (parentNode?.getRootNode() !== document) {
+    return onMount(placeholder).then(() => addRoute(route));
   }
 
   route.group = [];
@@ -92,27 +87,11 @@ export function addRoute(route) {
 
     queueMicrotask(updateRouting);
   }
-
-  return true;
 }
 
-export function navigate(path = '') {
-  window.history.pushState(null, null, path);
-}
 
-/** @type { HTMLMetaElement } */
-const meta = document.querySelector('head meta[name="route"]') || document.createElement('meta');
-
-meta.name    = 'route';
-meta.content = location.pathname;
-
-document.head.append(meta);
-
-export const updateRouting = () => {
-  const href = location.href.replace(/index\.*[a-z0-9]*$/gm, '');
-
-  route(href);
-  query(Object.fromEntries(new URLSearchParams(location.search)));
+function updateRouting(href = location.href) {
+  href = href.replace(/index\.*[a-z0-9]*$/gm, '');
 
   let hasFullMatch = false;
 
@@ -142,7 +121,12 @@ export const updateRouting = () => {
 
   state.updateQueued = false;
 
-  return updateGroup(routes);
+  if (updateGroup(routes)) {
+    route(href);
+    query(Object.fromEntries(new URLSearchParams(location.search)));
+  }
+
+  return hasFullMatch;  
 }
 
 const onNavigate = (event) => {
@@ -150,19 +134,15 @@ const onNavigate = (event) => {
         url  = new URL(href, location.href);
 
   if (href && url.hostname == location.hostname) {
-    if (routes.some(e => e.pattern.test(href))) {
+    if (updateRouting(href)) {
       _pushState.call(window.history, null, null, href);
-
-      if (updateRouting()) {
-        event.preventDefault();
-      }
+      event.preventDefault();
     }
   }
-
 }
 
-window.addEventListener('popstate',   updateRouting);
-window.addEventListener('hashchange', updateRouting);
+window.addEventListener('popstate',   () => updateRouting());
+window.addEventListener('hashchange', () => updateRouting());
 window.addEventListener('click',      onNavigate);
 
 window.history.pushState = function pushState(
@@ -172,7 +152,7 @@ window.history.pushState = function pushState(
 ) {
   _pushState.call(window.history, data, _, url);
 
-  updateRouting();
+  updateRouting(url.toString());
 }
 
 window.history.replaceState = function replaceState(
@@ -182,5 +162,5 @@ window.history.replaceState = function replaceState(
 ) {
   _replaceState.call(window.history, data, _, url);
 
-  updateRouting();
+  updateRouting(url.toString());
 }

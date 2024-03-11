@@ -1,7 +1,7 @@
-import { notifyVisible } from '../notify/visible.js';
-import { executeNodeAttributesTemplate, templateByNode } from '../template.js';
+import { onVisible } from '../notify.js';
+import { templateByNode } from '../template.js';
 
-const loaded = new WeakSet();
+export const lazyLoads = new WeakSet();
 
 /** @type { import("../plugins.js").Plugin } */
 export const dataLazyPlugin = {
@@ -9,30 +9,22 @@ export const dataLazyPlugin = {
 
   run: (node, props, stopTemplate) => {
 
-    if (loaded.has(node) || !node.childNodes.length) {
+    if (lazyLoads.has(node)) {
       return;
     }
     
-    loaded.add(node);
-
-    const className = node.dataset.lazy;
-
+    lazyLoads.add(node);
+    
     const execute = () => {
       node.removeAttribute('data-lazy');
 
-      executeNodeAttributesTemplate(node, props);
-      
       for (const child of node.childNodes) {
         templateByNode(child, props);
       }
     }
 
-    if (className) {
-      node.addEventListener('::load',   () => node.classList.add(className),    { once: true });
-      node.addEventListener('::loaded', () => node.classList.remove(className), { once: true });
-    }
-
-    notifyVisible(node).then(execute);
+    onVisible(node).then(execute);
+    
     stopTemplate();
   }
 }

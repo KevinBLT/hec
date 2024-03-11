@@ -15,13 +15,13 @@
   </head>
   <body>
     
-    <div data-component="my-counter" data-lazy data-for="let e of list" camelCase="{{ e.count }}" count="{{ e.count }}"></div>
+    <div data-component="my-counter" data-lazy data-for="let e of list" data-i="{{ __i }}" camelCase="{{ e.count }}" count="{{ e.count }}"></div>
 
     <script type="module">
       import { templateByNode } from '../../lib/index.js';
 
       templateByNode(document.body, {
-        list: Array.from({ length: Math.round(Math.random() * 10)}, () => (
+        list: Array.from({ length: Math.round(Math.random() * 100)}, () => (
           { count: Math.round(Math.random() * 0xffffff) })
         ),
       });

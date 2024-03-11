@@ -1,9 +1,9 @@
-import { addRoute } from "../routing.js";
+import { addRoute, route } from "../routing.js";
 
 
 /** @type { import("../plugins.js").Plugin } */
 export const dataRoutePlugin = {
-  select: '[data-route], [data-route-not]',
+  select: '[data-route]',
 
   run: async (node) => {
 
@@ -27,7 +27,7 @@ export const dataRoutePlugin = {
         }
 
         placeholder.after(node);
-      } else if (node.localName != 'link') {
+      } else if (!node.closest('head')) {
         node.remove();
       }
     }
@@ -35,5 +35,36 @@ export const dataRoutePlugin = {
     addRoute({ path: route, update, node, placeholder });
    
     node.replaceWith(placeholder);
+  }
+}
+
+/** @type { import("../plugins.js").Plugin } */
+export const dataMatchPlugin = {
+  select: '[data-match], [href]',
+
+  run: (node) => {
+
+    const className = node.dataset.match ?? '--active',
+          normalize = (/** @type { string } */ v) => v.replace(/index\.*[a-z0-9]*$/gm, '');
+
+    function pathname() {
+      return normalize(
+        new URL(node.dataset.route || node.getAttribute('href'), location.href).pathname
+      );
+    } 
+
+    const update = () => {
+      if (pathname() == normalize(location.pathname)) {
+        node.classList.add(className);
+      } else {
+        node.classList.remove(className);
+      }
+    }
+
+    route.subscribe({ next: update });
+
+    update();    
+
+    node.removeAttribute('data-match');
   }
 }

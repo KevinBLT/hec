@@ -1,11 +1,10 @@
-import { dataMatchPlugin } from "./plugins/data-match.js";
+import { dataMatchPlugin } from "./plugins/data-route.js";
 import { dataBindPlugin } from "./plugins/data-bind.js";
 import { dataForPlugin } from "./plugins/data-for.js";
 import { dataIfPlugin } from "./plugins/data-if.js";
 import { dataIncludePlugin } from "./plugins/data-include.js";
 import { dataLazyPlugin } from "./plugins/data-lazy.js";
 import { dataOnPlugin } from "./plugins/data-on.js";
-import { dataPreloadPlugin } from "./plugins/data-preload.js";
 import { dataRoutePlugin } from "./plugins/data-route.js";
 import { dataComponentPlugin } from "./plugins/data-component.js";
 
@@ -22,11 +21,10 @@ import { dataComponentPlugin } from "./plugins/data-component.js";
  * @type { Plugin<HTMLElement | HTMLInputElement | SVGElement>[] } 
  */
 export const plugins = [ 
-  dataComponentPlugin,
   dataForPlugin,
+  dataComponentPlugin,
   dataIfPlugin,
   dataRoutePlugin,
-  dataPreloadPlugin,
   dataIncludePlugin,
   dataOnPlugin,
   dataBindPlugin,

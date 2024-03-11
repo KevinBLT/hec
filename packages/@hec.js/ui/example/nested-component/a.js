@@ -1,4 +1,4 @@
-import { templateByName, view } from '../../lib/index.js';
+import { templateByName, templateByNode, view } from '../../lib/index.js';
 
 view('a', { text: 'Hi' }, (props) => {
   
@@ -6,3 +6,5 @@ view('a', { text: 'Hi' }, (props) => {
 
   return templateByName('./a.html', { list, text: props.text });
 });
+
+templateByNode(document);

@@ -2,7 +2,7 @@ import { expression } from './expression.js';
 import { pipes } from './pipes.js';
 import { plugins } from './plugins.js';
 import { isSignal } from './signal.js';
-import { f, setPropsOf, prop, hasProp, hasProps } from './props.js';
+import { f, prop } from './props.js';
 import { componentSelector } from './component.js';
 
 /** @type {{ [key: string]: Promise<HTMLTemplateElement> }} */
@@ -71,17 +71,11 @@ export function templateByNode(template, props = {}) {
   const findExpression = (node, done = new WeakSet()) => {
     let stopFlag = false;
 
-    if (hasProps(node) || done.has(node)) {
+    if (done.has(node)) {
       return;
     }
 
-    if (node.nodeName == '#document-fragment') {
-      setPropsOf(node, props);
-    }
-
     if (node instanceof HTMLElement || node instanceof SVGElement) {
-      
-      setPropsOf(node, props);
 
       for (const plugin of plugins) {
         if (node.matches(plugin.select)) {
@@ -89,11 +83,13 @@ export function templateByNode(template, props = {}) {
         }
       }
 
-      if (stopFlag) {
-        return;
+      if (node.parentNode || !node.dataset.for) {
+        executeNodeAttributesTemplate(node, props);
       }
 
-      executeNodeAttributesTemplate(node, props);
+      if (stopFlag) {
+        return;
+      }      
       
     } else if (node instanceof Text && node.textContent.includes('{{')) {
       const parts = node.textContent.split(/{{|}}/g);
@@ -145,9 +141,7 @@ export const executeNodeAttributesTemplate = (node, props) => {
         } else {
           node.setAttribute(attributeName, text);
         }
-
       });
-  
     }
   }
 }
