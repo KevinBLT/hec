@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>hec.js :: Inline</title>
+
+    <template data-group data-if="ok">
+      <meta name="test 1" content="Okay lets go!" />
+      <meta name="test 2" content="Okay lets go!" />
+      <meta name="test 3" content="Okay lets go!" />
+    </template>
   </head>
   <body>
 
@@ -38,8 +44,9 @@
       let ok = signal(false);
 
       setTimeout(() => ok(true), 1000);
+      setTimeout(() => ok(false), 5000);
 
-      templateByNode(document.body, {
+      templateByNode(document, {
         ok, text: 'hey'
       });
 
