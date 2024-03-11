@@ -178,10 +178,10 @@ const bindExpressions = (text, props, update) => {
       value = prop(props, propKey);
       value = value();
 
-      value.provide(f(provider));
+      value.provide(f(provider), exp.meta);
 
       if (isSignal(provider)) {
-        provider.subscribe({ next: (v) => value.resolve(f(v)) });
+        provider.subscribe({ next: (v) => value.provide(f(v), exp.meta) });
       }
 
     } else {

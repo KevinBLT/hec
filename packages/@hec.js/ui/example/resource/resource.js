@@ -1,4 +1,4 @@
-import { component, resource, templateByString } from '../../lib/index.js';
+import { component, resource, templateByNode, templateByString } from '../../lib/index.js';
 
 component('my-beer', {}, () => {
 
@@ -21,3 +21,5 @@ component('my-beer', {}, () => {
   );
 
 });
+
+templateByNode(document);

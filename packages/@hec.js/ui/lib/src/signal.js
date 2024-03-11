@@ -315,7 +315,9 @@ export function resourceBy(prop, fetch, initialValue = null) {
 
 /** 
  * @template T
- * @typedef { () => { provide: (value?: any) => void } & Signal<T> } Provider<T> 
+ * @typedef { () => { 
+ *   provide: (value?: any, meta?: { [key: string]: string }) => void 
+ * } & Signal<T> } Provider<T> 
  */
 
 /**
@@ -329,7 +331,7 @@ export function isSignal(signal) {
 
 /**
  * @template T
- * @param { (value?: any) => T } provide 
+ * @param { (value?: any, meta?: { [key: string]: string }) => T } provide 
  * @param { Signal<any>[] } signals 
  * @returns { Provider<T> }
  */
@@ -339,17 +341,22 @@ export function provider(provide, signals = []) {
 
     /** @type { Signal<T> } */
     let value    = signal(null),
-        provided = null;
+        provided = null,
+        meta     = null;
 
-    /** @param { any } v */
-    const _provide = (v) => {
+    /** 
+     * @param { any } v 
+     * @param {{ [key: string]: string } | undefined} m 
+     */
+    const _provide = (v, m) => {
       provided = v;
+      meta     = m;
 
-      value(provide(v));
+      value(provide(v, meta));
     }
 
     for (const signal of signals) {
-      signal.subscribe({ next: () => value(provide(provided)) });
+      signal.subscribe({ next: () => value(provide(provided, meta)) });
     }
 
     return Object.assign({ provide: _provide }, value); 

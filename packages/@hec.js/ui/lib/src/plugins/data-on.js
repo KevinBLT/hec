@@ -6,6 +6,8 @@ export const dataOnPlugin = {
 
   run: (node, props) => {
 
+    console.log(node);
+
     /** @param { string } on */
     const addHander = (on) => {
       const params    = on.split(':'),

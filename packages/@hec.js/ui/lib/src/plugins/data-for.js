@@ -60,7 +60,7 @@ export const dataForPlugin = {
       }
     }
 
-    update(f(list));
+    queueMicrotask(() => update(f(list)));
 
     if (isSignal(list)) {
       list.subscribe({next: update}); 
