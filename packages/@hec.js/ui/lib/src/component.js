@@ -59,7 +59,7 @@ export function component(name, props, fn) {
         signals[p] = isSignal(pv) ? pv : signal(pv);
       } else {
         // @ts-ignore
-        signals[p] = isSignal(v) ? v : signal(typeof props[p] == 'number' ? parseFloat(v) : v);
+        signals[p] = signal(typeof props[p] == 'number' ? parseFloat(v) : v);
         // @ts-ignore
         signals[p].subscribe({ next: (v) => v ? node.setAttribute(p, v) : node.removeAttribute(p) });
       }

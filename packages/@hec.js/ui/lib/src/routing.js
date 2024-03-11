@@ -124,6 +124,8 @@ function updateRouting(href = location.href) {
   if (updateGroup(routes)) {
     route(href);
     query(Object.fromEntries(new URLSearchParams(location.search)));
+  } else {
+    updateRouting(route());
   }
 
   return hasFullMatch;  
