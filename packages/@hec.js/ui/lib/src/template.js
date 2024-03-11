@@ -134,7 +134,7 @@ export const executeNodeAttributesTemplate = (node, props) => {
     if (attribute?.includes('{{')) {
       
       bindExpressions(attribute, props, (text) => {
-        text = text.trim().replace(/ +/, ' ');
+        text = text.replace(/ +/, ' ').trim();
 
         if (text === 'undefined' || text === 'null') {
           node.removeAttribute(attributeName);
