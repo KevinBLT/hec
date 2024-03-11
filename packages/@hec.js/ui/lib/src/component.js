@@ -56,7 +56,7 @@ export function component(name, props, fn) {
       if (typeof v === 'string' && v.startsWith('@')) {
         const pv = prop(context, v.substring(1));
         // @ts-ignore
-        signals[p] = isSignal(v) ? pv : signal(pv);
+        signals[p] = isSignal(pv) ? pv : signal(pv);
       } else {
         // @ts-ignore
         signals[p] = isSignal(v) ? v : signal(typeof props[p] == 'number' ? parseFloat(v) : v);
