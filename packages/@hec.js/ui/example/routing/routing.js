@@ -3,12 +3,12 @@ import { templateByString } from '../../lib/index.js';
 document.body.append(
   templateByString(
     `
-      <a data-on="click" href="/a">A</a>
-      <a data-on="click" href="/b">B</a>
-      <a data-on="click" href="/b/x">B-X</a>
-      <a data-on="click" href="/c">C</a>
-      <a data-on="click" href="/a/b/c">A-B-C</a>
-      <a data-on="click" href="/c/d">C-D</a>
+      <a href="/a">A</a>
+      <a href="/b">B</a>
+      <a href="/b/x">B-X</a>
+      <a href="/c">C</a>
+      <a href="/a/b/c">A-B-C</a>
+      <a href="/c/d">C-D</a>
 
       <div data-route="/a">= /A</div>
 

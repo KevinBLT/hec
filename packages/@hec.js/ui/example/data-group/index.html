@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>hec.js :: Inline</title>
+  </head>
+  <body>
+
+    <div data-if="ok">
+      <div>
+        <strong>{{ text }}</strong>
+      </div>
+    </div>
+
+    <template data-group data-if="ok">
+      <div>
+        <strong>(group) If: {{ text }}</strong>
+      </div>
+      <span>Member</span>
+    </template>
+
+    <template data-group data-include="./text.html"></template>
+
+    <template data-group data-route="/a">
+      <div>
+        <strong>(group) Route: {{ text }}</strong>
+      </div>
+      <span>Member</span>
+    </template>
+
+
+    <a href="/a">go</a>
+
+    <script type="module">
+      import { templateByNode, signal } from '../../lib/index.js';
+
+      let ok = signal(false);
+
+      setTimeout(() => ok(true), 1000);
+
+      templateByNode(document.body, {
+        ok, text: 'hey'
+      });
+
+    </script>
+  </body>
+</html>

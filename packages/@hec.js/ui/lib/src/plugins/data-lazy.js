@@ -5,7 +5,7 @@ export const lazyLoads = new WeakSet();
 
 /** @type { import("../plugins.js").Plugin } */
 export const dataLazyPlugin = {
-  select: '[data-lazy]',
+  select: (node) => node.matches('[data-lazy]'),
 
   run: (node, props, stopTemplate) => {
 

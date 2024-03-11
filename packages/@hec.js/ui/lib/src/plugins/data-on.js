@@ -1,27 +1,15 @@
 import { prop } from "../props.js";
 
-/** @type { import("../plugins.js").Plugin } */
+/** @type { import("../plugins.js").Plugin<HTMLElement | SVGElement> } */
 export const dataOnPlugin = {
-  select: '[data-on]',
+  select: (node) => Object.keys(node.dataset).some(e => e.startsWith('on.')),
 
   run: (node, props) => {
-
-    console.log(node);
-
-    /** @param { string } on */
-    const addHander = (on) => {
-      const params    = on.split(':'),
-            eventName = params[0].trim(),
-            funcName  = params.at(-1).trim(),
-            handler   = prop(props, funcName);
-      
-      if (handler) {
-        node.addEventListener(eventName, handler);
+    
+    for (const p in node.dataset) {
+      if (p.startsWith('on.')) {
+        node.addEventListener(p.split('.')[1], prop(props, node.dataset[p]));
       }
-    }
-   
-    for (const on of node.dataset.on.split(',')) {
-      addHander(on);
     }
   }
 }

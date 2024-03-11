@@ -7,7 +7,7 @@ const loaded = new WeakSet();
 
 /** @type { import("../plugins.js").Plugin<HTMLInputElement> } */
 export const dataComponentPlugin = {
-  select: componentSelector,
+  select: (node) => node.matches(componentSelector),
 
   run: (node, props) => {
     const component = node.dataset.component ?? node.dataset.view ?? node.dataset.page;

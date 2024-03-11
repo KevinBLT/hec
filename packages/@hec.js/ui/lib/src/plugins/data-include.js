@@ -6,7 +6,7 @@ export const loaded = new WeakSet();
 
 /** @type { import("../plugins.js").Plugin } */
 export const dataIncludePlugin = {
-  select: '[data-include]',
+  select: (node) => node.matches('[data-include]'),
 
   run: (node, props) => {
 
@@ -28,17 +28,25 @@ export const dataIncludePlugin = {
       });
 
       if (response.ok) {
-        const html = await response.text();
+        const html = await response.text(),
+              temp = document.createElement('div');
 
         node.dispatchEvent(new CustomEvent('::loaded', { bubbles: true }));
-        node.innerHTML = html;
+        temp.innerHTML = html;
 
-        for (const child of node.childNodes) {
+        for (const child of temp.childNodes) {
           templateByNode(child, props);
+        }
+
+        if ('group' in node.dataset) {
+          node.replaceWith(...temp.childNodes);
+        } else {
+          node.append(...temp.childNodes);
         }
 
         node.removeAttribute('data-include');
         node.removeAttribute('data-lazy');
+        node.removeAttribute('data-group');
         node.classList.remove('--loading');
       }
     }

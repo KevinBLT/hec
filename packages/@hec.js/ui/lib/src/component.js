@@ -90,6 +90,8 @@ export function component(name, props, fn) {
         node.append(childrenStart, ...children);
       }
     }
+
+    node.dispatchEvent(new CustomEvent('::mount'));
   });
 
   emit('::component/' + name);

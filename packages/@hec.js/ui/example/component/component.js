@@ -1,8 +1,10 @@
 import { component, templateByName } from '../../lib/index.js';
 
-component('my-counter', { count: 0, camelCase: '' }, ({ count, camelCase }) => {
+component('my-counter', { count: 0, camelCase: '' }, ({ count, camelCase }, node) => {
 
   console.log('EXECUTE')
+
+  node.addEventListener('::mount', () => console.log(count()))
 
   let isDown = false;
 

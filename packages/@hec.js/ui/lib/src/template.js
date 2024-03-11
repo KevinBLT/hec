@@ -78,7 +78,7 @@ export function templateByNode(template, props = {}) {
     if (node instanceof HTMLElement || node instanceof SVGElement) {
 
       for (const plugin of plugins) {
-        if (node.matches(plugin.select)) {
+        if (plugin.select(node)) {
           plugin.run(node, props, () => stopFlag = true);    
         }
       }

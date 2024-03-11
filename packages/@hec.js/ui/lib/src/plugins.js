@@ -11,14 +11,14 @@ import { dataComponentPlugin } from "./plugins/data-component.js";
 /**
  * @template [T=HTMLElement]
  * @typedef {{
- *   select: string,
+ *   select: (node: HTMLElement | HTMLInputElement | SVGElement | HTMLTemplateElement) => boolean,
  *   run: (node: T, props: {[key: string]: any}, stopTemplate: () => void) => void
  * }} Plugin
  */
 
 /** 
  * @template [T=HTMLElement]
- * @type { Plugin<HTMLElement | HTMLInputElement | SVGElement>[] } 
+ * @type { Plugin<HTMLElement | HTMLInputElement | SVGElement | HTMLTemplateElement>[] } 
  */
 export const plugins = [ 
   dataForPlugin,

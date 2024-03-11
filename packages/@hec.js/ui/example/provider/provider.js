@@ -31,9 +31,9 @@ document.body.append(
   templateByString(
     `
       <ul>
-        <li data-on="click:select" class="item {{ isSelected(e) foo='bar' }}" data-for="e of list">{{ e }}</li>
+        <li data-on.click="select" class="item {{ isSelected(e) foo='bar' }}" data-for="e of list">{{ e }}</li>
       </ul>
-      <button data-on="click:next" >RANDOM</botton>
+      <button data-on.click="next" >RANDOM</botton>
     `,
     { list, isSelected, select, next }
   )

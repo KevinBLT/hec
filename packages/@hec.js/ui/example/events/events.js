@@ -5,5 +5,5 @@ const text = signal('Click!');
 const context = { text, click: () => text('OK :)') };
 
 document.body.append(
-  templateByString(`<div data-on="click">{{ text }}</div>`, context)
+  templateByString(`<div data-on.click="click">{{ text }}</div>`, context)
 );

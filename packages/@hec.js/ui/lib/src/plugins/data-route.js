@@ -1,11 +1,12 @@
 import { addRoute, route } from "../routing.js";
+import { nodeUpdater } from "./data-if.js";
 
 
 /** @type { import("../plugins.js").Plugin } */
 export const dataRoutePlugin = {
-  select: '[data-route]',
+  select: (node) => node.matches('[data-route]'),
 
-  run: async (node) => {
+  run: async (node, props) => {
 
     /* -- Polyfill safari -- */
     if (!('URLPattern' in window)) { // @ts-ignore
@@ -14,47 +15,31 @@ export const dataRoutePlugin = {
     /* -- -- */
 
     const route       = node.dataset.route,
-          placeholder = document.createComment('route: ' + route);
-
-    /** @param { boolean } visible  */
-    const update = (visible) => {
-
-      if (visible) {
-        node.hidden = false;
-        
-        if (node.parentNode) {
-          return;
-        }
-
-        placeholder.after(node);
-      } else if (!node.closest('head')) {
-        node.remove();
-      }
-    }
+          placeholder = document.createComment('route: ' + route),
+          update      = nodeUpdater(node, placeholder, props);
     
     addRoute({ path: route, update, node, placeholder });
    
+    node.removeAttribute('data-group');
     node.replaceWith(placeholder);
   }
 }
 
 /** @type { import("../plugins.js").Plugin } */
 export const dataMatchPlugin = {
-  select: '[data-match], [href]',
+  select: (node) => node.matches('[data-match], [href]'),
 
   run: (node) => {
 
     const className = node.dataset.match ?? '--active',
           normalize = (/** @type { string } */ v) => v.replace(/index\.*[a-z0-9]*$/gm, '');
 
-    function pathname() {
-      return normalize(
-        new URL(node.dataset.route || node.getAttribute('href'), location.href).pathname
-      );
+    function pathname(href) {
+      return normalize(new URL(href, location.href).pathname);
     } 
 
-    const update = () => {
-      if (pathname() == normalize(location.pathname)) {
+    const update = (/** @type { string } */ url) => {
+      if (pathname(node.getAttribute('href')) == pathname(url)) {
         node.classList.add(className);
       } else {
         node.classList.remove(className);
@@ -63,7 +48,7 @@ export const dataMatchPlugin = {
 
     route.subscribe({ next: update });
 
-    update();    
+    update(location.pathname);    
 
     node.removeAttribute('data-match');
   }

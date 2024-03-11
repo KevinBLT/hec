@@ -7,7 +7,7 @@ const done = new WeakSet();
 
 /** @type { import("../plugins.js").Plugin } */
 export const dataForPlugin = {
-  select: '[data-for]',
+  select: (node) => node.matches('[data-for]'),
   
   run: (node, props, stopTemplate) => {
 

@@ -12,15 +12,27 @@
         display: block;
       }
     </style>
+
+    <template data-group data-if="ok">
+      <meta name="content" content="test 1">
+      <meta name="content" content="test 2">
+    </template>
+
   </head>
   <body>
     
     <div data-component="my-counter" data-lazy data-for="let e of list" data-i="{{ __i }}" camelCase="{{ e.count }}" count="{{ e.count }}"></div>
 
     <script type="module">
-      import { templateByNode } from '../../lib/index.js';
+      import { templateByNode, signal } from '../../lib/index.js';
 
-      templateByNode(document.body, {
+      const ok = signal(false);
+
+      setTimeout(() => ok(true),  5000);
+      setTimeout(() => ok(false), 10000);
+
+      templateByNode(document, {
+        ok,
         list: Array.from({ length: Math.round(Math.random() * 100)}, () => (
           { count: Math.round(Math.random() * 0xffffff) })
         ),
