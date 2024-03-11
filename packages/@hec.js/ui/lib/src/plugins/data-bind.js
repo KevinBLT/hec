@@ -12,7 +12,7 @@ const valueByType = {
 
 /** @type { import("../plugins.js").Plugin<HTMLInputElement> } */
 export const dataBindPlugin = {
-  select: (node) => node.matches('[data-bind],[name]'),
+  select: (node) => node.matches('[data-bind]'),
 
   run: (node, props) => {
     const key = node.dataset.bind || node.getAttribute('name'),

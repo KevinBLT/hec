@@ -13,7 +13,7 @@ document.body.append(
   templateByString(`
     <form>
       <label>Enter your name so you can see it as output</label><br>
-      <input type="text" name="name" /><br><br>
+      <input type="text" data-bind="name" /><br><br>
       <label>Enter your age</label><br>
       <input data-bind="age" type="number" /><br><br>
       <output>Your name is: {{ name }}</output><br>
