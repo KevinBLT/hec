@@ -7,3 +7,4 @@ export * from './src/component.js';
 export * from './src/props.js';
 export * from './src/event.js';
 export * from './src/preload.js';
+export * from './src/routing.js';
