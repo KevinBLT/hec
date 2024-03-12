@@ -26,6 +26,8 @@ export const dataClassPlugin = {
       if (attr.startsWith('data-class.')) {
         const className = attr.split('.')[1], 
               prop      = node.getAttribute(attr);
+
+        node.removeAttribute(attr);
         
         bindExpressions(prop, props, (v) => update(v, className), false);
       }

@@ -8,7 +8,10 @@ export const dataOnPlugin = {
     
     for (const p in node.dataset) {
       if (p.startsWith('on.')) {
-        node.addEventListener(p.split('.')[1], prop(props, node.dataset[p]));
+        const v = node.dataset[p];
+
+        node.removeAttribute(p);
+        node.addEventListener(p.split('.')[1], prop(props, v));
       }
     }
   }
