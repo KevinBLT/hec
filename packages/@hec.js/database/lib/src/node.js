@@ -14,6 +14,5 @@ export function database(connection) {
     return new PostgresDB(connection);
   }
 
-
   throw new Error(`Dabase driver "${connection.driver}" not found!`);
 }

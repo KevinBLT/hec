@@ -1,6 +1,6 @@
 import { Database } from '../database.js';
-import pg from 'pg';
 import QueryStream from 'pg-query-stream';
+import pg from 'pg';
 
 export class PostgresDB extends Database {
 
@@ -19,18 +19,49 @@ export class PostgresDB extends Database {
       max: this.pool
     });
 
-    this.#pool.on('error', console.log);
+    this.#pool.on('error', console.error);
   }
 
-  async query(query, params) {
-    return (await this.#pool.query(query, params)).rows;
+  async transaction(steps) {
+    let client   = await this.#pool.connect(),
+        rollback = false;
+
+    await client.query('BEGIN');
+
+    try {
+      await steps(
+        async (query, params) => this.query(query, params, client), 
+        () => rollback = true
+      );
+    } catch (e) {
+      console.error(e);
+
+      rollback = true;
+    }
+
+    rollback ? await client.query('ROLLBACK') : await client.query('COMMIT');
+
+    return !rollback;
+  }
+
+  async query(query, params, client = null) {
+    const start  = Date.now(),
+          result = await (client ? client.query(query, params) : this.#pool.query(query, params));
+    
+    return Object.assign(result.rows, { 
+      affected: result.rowCount, 
+      duration: new Date().valueOf() - start.valueOf() 
+    });
+
   }
 
   async * stream(query, params) {
     const client = await this.#pool.connect();
   
-    yield * client.query(new QueryStream(query, params));
-
-    client.release();
+    try {
+      yield * client.query(new QueryStream(query, params));
+    } finally {
+      client.release();
+    }
   }
 }

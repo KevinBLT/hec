@@ -104,14 +104,23 @@ function updateRouting(href = location.href) {
 
       route.update(!hasMatch && isMatch);
       
+      
       if (!hasMatch && isMatch) {
         hasMatch = true;
+
+        route.node.classList.add('--active');
 
         if (route.group.length) {
           updateGroup(route.group);
         } else {
           hasFullMatch = true;
           meta.content = route.pattern.pathname;
+        }
+      } else {
+        route.node.classList.remove('--active');
+
+        if (!route.node.className) {
+          route.node.removeAttribute('class');
         }
       }
     }

@@ -1,9 +1,9 @@
 /**
- * @typedef { Response | undefined | void } MaybeResponse
+ * @typedef { Response | Promise<Response> } ApiResponse
  */
 /**
  * @template T
- * @typedef { (request: import('./request.js').ApiRequest, context: T) => MaybeResponse | Promise<MaybeResponse> } RouteRequest
+ * @typedef { (request: import('./request.js').ApiRequest, context: T, next?: () => ApiResponse) => ApiResponse } RouteRequest
  */
 /**
  * @typedef { Object } _ApiRequest
@@ -20,8 +20,8 @@ export class Route<T> {
     constructor(options: Partial<Route<T>>);
     /** @type { Partial<Route<T>>[] | undefined } */
     group: Partial<Route<T>>[] | undefined;
-    /** @type { 'GET' | 'POST' | 'PUT' | 'PATCH' | 'HEAD' | 'OPTIONS' | 'DELETE' | undefined } */
-    method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'HEAD' | 'OPTIONS' | 'DELETE' | undefined;
+    /** @type { 'GET' | 'POST' | 'PUT' | 'PATCH' | 'HEAD' | 'OPTIONS' | 'DELETE' | 'TRACE' | undefined } */
+    method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'HEAD' | 'OPTIONS' | 'DELETE' | 'TRACE' | undefined;
     /** @type { string | undefined } */
     path: string | undefined;
     /** @type { string[] | undefined } */
@@ -35,8 +35,8 @@ export class Route<T> {
     /** @type { import('urlpattern-polyfill').URLPattern | undefined } */
     pattern: import('urlpattern-polyfill').URLPattern | undefined;
 }
-export type MaybeResponse = Response | undefined | void;
-export type RouteRequest<T> = (request: import('./request.js').ApiRequest, context: T) => MaybeResponse | Promise<MaybeResponse>;
+export type ApiResponse = Response | Promise<Response>;
+export type RouteRequest<T> = (request: import('./request.js').ApiRequest, context: T, next?: () => ApiResponse) => ApiResponse;
 export type _ApiRequest = {
     param: (key: string) => string;
     query: (key: string) => string;

@@ -3,10 +3,12 @@ import { pipes } from './pipes.js';
 import { plugins } from './plugins.js';
 import { isSignal } from './signal.js';
 import { f, prop } from './props.js';
-import { componentSelector } from './component.js';
 
 /** @type {{ [key: string]: Promise<HTMLTemplateElement> }} */
 const templatesLoading = {};
+
+/** @type { WeakMap<Node, { [key: string]: any }> } */
+export const nodeProps = new WeakMap();
 
 /**
  * @param { string | URL } name
@@ -52,7 +54,6 @@ export function templateByName(name, props = {}) {
 export function templateByString(template, props = {}) {
   const tmpl = document.createElement('template');
   
-  tmpl.dataset.name = 'anonymous';
   tmpl.innerHTML = template;
 
   return templateByNode(tmpl.content.cloneNode(true), props);
@@ -63,6 +64,7 @@ export function templateByString(template, props = {}) {
  * @param { {[key: string]: any } } props
  */
 export function templateByNode(template, props = {}) {
+  nodeProps.set(template, props);
 
   /** 
    * @param { Node } node 
@@ -149,13 +151,18 @@ export const executeNodeAttributesTemplate = (node, props) => {
 /**
  * @param { string } text
  * @param { {[key: string]: any } } props
- * @param { (text: string | null) => void } update
+ * @param { (value: string | any) => void } update
+ * @param { boolean } [asString=true] asString 
  */
-const bindExpressions = (text, props, update) => {
+export const bindExpressions = (text, props, update, asString = true) => {
 
   /** @type {import("./expression.js").Expression[]} */
-  let expressions = text.match(/{{[^}]+}}/g).map(expression),
+  let expressions = text.match(/{{[^}]+}}/g)?.map(expression) ?? [],
       sourceText  = text;
+
+  if (!asString && !expressions.length) {
+    expressions = [{ prop: text, meta: {} }];
+  }
 
   const evaluate = () => {
     text = sourceText;
@@ -170,7 +177,7 @@ const bindExpressions = (text, props, update) => {
   for (const exp of expressions) {
     let value = null;
 
-    if (exp.prop[exp.prop.length - 1] === ')') {
+    if (exp.prop?.[exp.prop.length - 1] === ')') {
       const propSplit = exp.prop.split('('),
             provider  = prop(props, propSplit[1].substring(0, propSplit[1].length - 1).trim()),
             propKey   = propSplit[0].trim();
@@ -188,7 +195,7 @@ const bindExpressions = (text, props, update) => {
       value = prop(props, exp.prop);
     }
 
-    if (value === undefined || value === null) {
+    if ((value === undefined || value === null) && !Object.keys(exp.meta).length) {
       console.warn(`{{ ${exp.prop} }}: No value for this key`, { key: exp.prop, value });
     }
 
@@ -213,7 +220,9 @@ const bindExpressions = (text, props, update) => {
 
       exp.value = signal;
 
-      signal.subscribe({ next: () => update(evaluate()) });
+      signal.subscribe({ next: (v) => update(asString ? evaluate() : v) });
+
+      !asString && value.update(f(value));
     } else {
       
       let v = value;
@@ -233,8 +242,9 @@ const bindExpressions = (text, props, update) => {
       }
 
       exp.value = () => v;
+      !asString && update(v);
     }
   }
 
-  update(evaluate());
+  asString && update(evaluate());
 };

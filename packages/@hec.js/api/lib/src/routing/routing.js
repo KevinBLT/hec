@@ -15,13 +15,13 @@ export function integrateRoute(route, parent = null) {
   route.accept      ??= parent?.accept;
   route.pattern     ??= new URLPattern({
     pathname: (
-      route.group ? `${route.path}/*?` : route.path
+      route.group ? `${route.path}/*?` : parent ? route.path.replaceAll(/\/$/mg, '') : route.path
     ).replaceAll('//', '/'),
   });
 
   if (route.group) {
 
-    for (const childRoute of route.group){
+    for (const childRoute of route.group) {
       // @ts-ignore: Child route will be transoformed into Route<T> by the Route class
       integrateRoute(childRoute, route);
     }

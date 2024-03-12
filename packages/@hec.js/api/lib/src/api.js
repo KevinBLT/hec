@@ -63,19 +63,29 @@ export class API {
     }
 
     const context = {
-      response: null,
       status: 404,
       url: null,
       accept: null,
       contentType: null
     };
-    
+
+    const stack        = [],
+          paramPointer = new WeakMap();
+
+    const next = () => {
+      const r = stack.shift();
+
+      apiRequest.param = paramPointer.get(r);
+
+      return r?.(apiRequest, this.#context, next);
+    }
+          
     /** 
      * @param { ApiRequest } request 
      * @param { Route<T>[] } routes 
      * @returns { Promise<Route<T> | undefined>}
      */
-    const findRoute = async (request, routes) => {
+    const findRoutes = async (request, routes) => {
       
       if (!routes) {
         return;
@@ -96,41 +106,32 @@ export class API {
             return params[key];
           }
 
-          if (route.middlewares) {
+          if (route.middlewares?.length) {
             for (const middleware of route.middlewares) {
-              context.response = middleware(request, this.#context);
-
-              if (context.response instanceof Promise) {
-                context.response = await context.response;
-              }
-
-              if (context.response instanceof Response) {
-                return Object.assign({}, route, { fetch: () => context.response });
-              }
+              paramPointer.set(middleware, request.param);
+              stack.push(middleware);
             }
           }
    
-          // @ts-ignore: Group here are always full Route<T> instances
-          const matchingRoute = await (route.fetch ? route : findRoute(request, route.group));
-
-          if (matchingRoute) {
-            return matchingRoute;
+          
+          if (route.fetch) {
+            paramPointer.set(route.fetch, request.param);
+            stack.push(route.fetch);
+          } else {
+            // @ts-ignore: Group here are always full Route<T> instances
+            findRoutes(request, route.group);
           }
         }
       }  
     } 
     
-    const route = await findRoute(apiRequest, this.#routes);
+    findRoutes(apiRequest, this.#routes);
 
-    if (route) {
-      const response = await route.fetch(apiRequest, this.#context);
-      
-      if (response) {
-        return response;
-      }
-    }
-   
-    return new Response(null, {status: context.status});
+    const r = await next() ?? new Response(null, { 
+      status: context.status 
+    });
+
+    return r;
   }
   
   serve() {

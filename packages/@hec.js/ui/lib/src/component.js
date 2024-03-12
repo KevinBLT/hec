@@ -1,6 +1,7 @@
 import { emit } from "./event.js";
 import { prop } from "./props.js";
 import { isSignal, signal } from "./signal.js";
+import { nodeProps, templateByNode } from "./template.js";
 
 export const componentSelector = '[data-component], [data-view], [data-page]';
 
@@ -51,7 +52,7 @@ export function component(name, props, fn) {
     }
 
     for (const p in props) {
-      const v = node.getAttribute(p);
+      const v = node.getAttribute(p) ?? props[p];
 
       if (typeof v === 'string' && v.startsWith('@')) {
         const pv = prop(context, v.substring(1));
@@ -85,9 +86,20 @@ export function component(name, props, fn) {
             childrenEnd   = document.createComment('/children');
 
       if (slot) {
+
+        for (const child of children) {
+          child instanceof Element && slot.getAttributeNames().forEach(
+            attr => child.setAttribute(attr, slot.getAttribute(attr))
+          );
+        }
+
         slot.replaceWith(childrenStart, ...children, childrenEnd);
       } else {
         node.append(childrenStart, ...children);
+      }
+
+      for (const child of children) {
+        templateByNode(child, Object.assign({}, context, nodeProps.get(fragment)));
       }
     }
 

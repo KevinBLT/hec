@@ -103,7 +103,7 @@ export function signal(value = null, options = {}) {
   const subscribers = [],
         storage     = options.storage && storageByName(options.storage);
 
-  /** @param { T } v */
+  /** @param { T | undefined } v */
   const update = (v) => {
     value = v;
 
@@ -359,7 +359,7 @@ export function provider(provide, signals = []) {
       signal.subscribe({ next: () => value(provide(provided, meta)) });
     }
 
-    return Object.assign({ provide: _provide }, value); 
+    return Object.assign(value, { provide: _provide }); 
   }
 
   return __provider;

@@ -9,7 +9,7 @@ const loaded = new WeakSet();
 export const dataComponentPlugin = {
   select: (node) => node.matches(componentSelector),
 
-  run: (node, props) => {
+  run: (node, props, stopTemplate) => {
     const component = node.dataset.component ?? node.dataset.view ?? node.dataset.page;
 
     if (loaded.has(node) || !node.parentNode) {
@@ -28,6 +28,10 @@ export const dataComponentPlugin = {
       node.classList.add('--loading');
       await components.get(component)(node, props);
       node.classList.remove('--loading');
+
+      if (!node.className) {
+        node.removeAttribute('class');
+      }
     }
 
     if (node.hasAttribute('data-lazy')) {
@@ -36,5 +40,7 @@ export const dataComponentPlugin = {
     } else {
       onMount(node).then(execute);
     }
+
+    stopTemplate();
   }
 }

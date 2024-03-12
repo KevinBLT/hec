@@ -1,4 +1,4 @@
-import { provider, signal, templateByString } from '../../lib/index.js';
+import { pipes, provider, signal, templateByString } from '../../lib/index.js';
 
 const list = [
   'Person A',
@@ -20,19 +20,17 @@ const next = () => {
 
 const selected = signal(null);
 
-const isSelected = provider((e, meta) => {
-  console.log(e, selected(), meta);
+const isSelected = provider((e) => e == selected(), [ selected ]);
 
-  return e == selected() ? '--selected' : '';
-}, [ selected ]);
-
+pipes['test'] = (options) => options.param;
 
 document.body.append(
   templateByString(
     `
       <ul>
-        <li data-on.click="select" class="item {{ isSelected(e) foo='bar' }}" data-for="e of list">{{ e }}</li>
+        <li data-on.click="select" data-class.--selected="isSelected(e)" class="item" data-for="e of list">{{ e }}</li>
       </ul>
+      <div data-if="{{}}">Hi!</div>
       <button data-on.click="next" >RANDOM</botton>
     `,
     { list, isSelected, select, next }

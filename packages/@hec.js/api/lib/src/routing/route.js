@@ -1,10 +1,10 @@
 /**
- * @typedef { Response | undefined | void } MaybeResponse
+ * @typedef { Response | Promise<Response> } ApiResponse
  */
 
 /**
  * @template T
- * @typedef { (request: import('./request.js').ApiRequest, context: T) => MaybeResponse | Promise<MaybeResponse> } RouteRequest
+ * @typedef { (request: import('./request.js').ApiRequest, context: T, next?: () => ApiResponse) => ApiResponse } RouteRequest
  */
 
 /**
@@ -30,7 +30,7 @@ export class Route {
     
   }
 
-  /** @type { 'GET' | 'POST' | 'PUT' | 'PATCH' | 'HEAD' | 'OPTIONS' | 'DELETE' | undefined } */
+  /** @type { 'GET' | 'POST' | 'PUT' | 'PATCH' | 'HEAD' | 'OPTIONS' | 'DELETE' | 'TRACE' | undefined } */
   method;
 
   /** @type { string | undefined } */

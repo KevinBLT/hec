@@ -1,3 +1,7 @@
+/**
+ * @typedef {{ affected: number, duration: number } & { [key: string]: any }[]} DatabaseResult
+ */
+
 export class Database {
   
   /** @type { string } */
@@ -26,10 +30,18 @@ export class Database {
   /**
    * @param { string } query 
    * @param { any[] }  params 
-   * @returns { Promise<any[]> }
+   * @returns { Promise<DatabaseResult> }
    */
   async query(query, params = []) {
-    return [];
+    return Object.assign([], { affected: 0, duration: 0 });
+  }
+  
+  /**
+   * @param { (query: (query: string, params: any[]) => Promise<DatabaseResult>, rollback: () => void) => void } steps 
+   * @returns { Promise<boolean> }
+   */
+  async transaction(steps) {
+    return false;
   }
 
   /**

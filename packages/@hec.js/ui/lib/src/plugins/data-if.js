@@ -1,6 +1,4 @@
-import { isSignal } from "../signal.js";
-import { f, prop } from "../props.js";
-import { templateByNode } from "../template.js";
+import { bindExpressions, templateByNode } from "../template.js";
 
 /** @type { import("../plugins.js").Plugin } */
 export const dataIfPlugin = {
@@ -8,20 +6,14 @@ export const dataIfPlugin = {
 
   run: (node, props) => {
     const key         = node.dataset.if || node.dataset.ifNot,
-          condition   = prop(props, key),
           negate      = !!node.dataset.ifNot,
           placeholder = document.createComment((negate ? 'if not:' : 'if: ') + key),
           update      = nodeUpdater(node, placeholder, props, negate);
           
     node.replaceWith(placeholder);
-    
-    update(f(condition));
-
     node.removeAttribute('data-group');
 
-    if (isSignal(condition)) {
-      condition.subscribe({next: update}); 
-    }    
+    bindExpressions(key, props, update, false);
   }
 }
 

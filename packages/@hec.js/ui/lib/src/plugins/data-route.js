@@ -43,6 +43,10 @@ export const dataMatchPlugin = {
         node.classList.add(className);
       } else {
         node.classList.remove(className);
+
+        if (!node.className) {
+          node.removeAttribute('class');
+        }
       }
     }
 

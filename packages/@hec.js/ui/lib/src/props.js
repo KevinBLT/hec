@@ -12,7 +12,7 @@ export const f = (v) => typeof v === 'function' ? f(v()) : v;
  * @returns { any }
  */
 export function prop(props, key) {
-  const chain = key.split('.');
+  const chain = key?.split('.');
 
   if (!key) {
     return props;

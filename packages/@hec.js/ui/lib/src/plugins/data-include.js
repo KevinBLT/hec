@@ -48,6 +48,10 @@ export const dataIncludePlugin = {
         node.removeAttribute('data-lazy');
         node.removeAttribute('data-group');
         node.classList.remove('--loading');
+
+        if (!node.className) {
+          node.removeAttribute('class');
+        }
       }
     }
 

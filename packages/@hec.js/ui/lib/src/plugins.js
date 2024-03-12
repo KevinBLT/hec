@@ -7,6 +7,7 @@ import { dataLazyPlugin } from "./plugins/data-lazy.js";
 import { dataOnPlugin } from "./plugins/data-on.js";
 import { dataRoutePlugin } from "./plugins/data-route.js";
 import { dataComponentPlugin } from "./plugins/data-component.js";
+import { dataClassPlugin } from "./plugins/data-class.js";
 
 /**
  * @template [T=HTMLElement]
@@ -27,6 +28,7 @@ export const plugins = [
   dataRoutePlugin,
   dataIncludePlugin,
   dataOnPlugin,
+  dataClassPlugin,
   dataBindPlugin,
   dataMatchPlugin,
   dataLazyPlugin,
