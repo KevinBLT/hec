@@ -31,6 +31,10 @@ export const dataMatchPlugin = {
 
   run: (node) => {
 
+    if (!node.parentNode) {
+      return;
+    }
+
     const className = node.dataset.match ?? '--active',
           normalize = (/** @type { string } */ v) => v.replace(/index\.*[a-z0-9]*$/gm, '');
 
@@ -39,7 +43,7 @@ export const dataMatchPlugin = {
     } 
 
     const update = (/** @type { string } */ url) => {
-      console.log(url, pathname(node.getAttribute('href')), pathname(url), pathname(node.getAttribute('href')) == pathname(url))
+
       if (pathname(node.getAttribute('href')) == pathname(url)) {
         node.classList.add(className);
       } else {
