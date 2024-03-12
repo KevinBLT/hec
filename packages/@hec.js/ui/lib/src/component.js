@@ -7,6 +7,8 @@ export const componentSelector = '[data-component], [data-view], [data-page]';
 
 export const components = new Map();
 
+export const isValue = (v) => v !== null && v !== undefined;
+
 /** @type { WeakMap<Node, (attribute: string) => void> } */
 export const componentUpdate = new WeakMap();
 
@@ -62,7 +64,9 @@ export function component(name, props, fn) {
         // @ts-ignore
         signals[p] = signal(typeof props[p] == 'number' ? parseFloat(v) : v);
         // @ts-ignore
-        signals[p].subscribe({ next: (v) => v ? node.setAttribute(p, v) : node.removeAttribute(p) });
+        signals[p].subscribe({ 
+          next: (v) => isValue(v) ? node.setAttribute(p, v) : node.removeAttribute(p) 
+        });
       }
     }
 
