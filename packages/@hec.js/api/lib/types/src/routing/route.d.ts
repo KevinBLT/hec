@@ -3,7 +3,7 @@
  */
 /**
  * @template T
- * @typedef { (request: import('./request.js').ApiRequest, context: T, next?: () => ApiResponse) => ApiResponse } RouteRequest
+ * @typedef { (request: import('./request.js').ApiRequest, context: T, next?: () => ApiResponse) => ApiResponse } RouteFetch
  */
 /**
  * @typedef { Object } _ApiRequest
@@ -28,15 +28,15 @@ export class Route<T> {
     accept: string[] | undefined;
     /** @type { string | undefined } */
     contentType: string | undefined;
-    /** @type { RouteRequest<T> | undefined } */
-    fetch: RouteRequest<T> | undefined;
-    /** @type { RouteRequest<T>[] | undefined } */
-    middlewares: RouteRequest<T>[] | undefined;
+    /** @type { RouteFetch<T> | undefined } */
+    fetch: RouteFetch<T> | undefined;
+    /** @type { RouteFetch<T>[] | undefined } */
+    middlewares: RouteFetch<T>[] | undefined;
     /** @type { import('urlpattern-polyfill').URLPattern | undefined } */
     pattern: import('urlpattern-polyfill').URLPattern | undefined;
 }
 export type ApiResponse = Response | Promise<Response>;
-export type RouteRequest<T> = (request: import('./request.js').ApiRequest, context: T, next?: () => ApiResponse) => ApiResponse;
+export type RouteFetch<T> = (request: import('./request.js').ApiRequest, context: T, next?: () => ApiResponse) => ApiResponse;
 export type _ApiRequest = {
     param: (key: string) => string;
     query: (key: string) => string;

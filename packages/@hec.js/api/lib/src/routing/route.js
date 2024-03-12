@@ -4,7 +4,7 @@
 
 /**
  * @template T
- * @typedef { (request: import('./request.js').ApiRequest, context: T, next?: () => ApiResponse) => ApiResponse } RouteRequest
+ * @typedef { (request: import('./request.js').ApiRequest, context: T, next?: () => ApiResponse) => ApiResponse } RouteFetch
  */
 
 /**
@@ -42,10 +42,10 @@ export class Route {
   /** @type { string | undefined } */
   contentType;
 
-  /** @type { RouteRequest<T> | undefined } */
+  /** @type { RouteFetch<T> | undefined } */
   fetch;
 
-  /** @type { RouteRequest<T>[] | undefined } */
+  /** @type { RouteFetch<T>[] | undefined } */
   middlewares;
 
   /** @type { Partial<Route<T>>[] | undefined } */
