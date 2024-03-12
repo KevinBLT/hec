@@ -57,7 +57,7 @@ export const dataMatchPlugin = {
 
     route.subscribe({ next: update });
 
-    update(location.pathname);    
+    queueMicrotask(() => update(location.pathname));
 
     node.removeAttribute('data-match');
   }
