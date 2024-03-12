@@ -91,7 +91,7 @@ export function addRoute(route) {
 
 
 function updateRouting(href = location.href) {
-  href = href.replace(/index\.*[a-z0-9]*$/gm, '');
+  href = new URL(href.replace(/index\.*[a-z0-9]*$/gm, ''), location.href).toString();
 
   let hasFullMatch = false;
 
