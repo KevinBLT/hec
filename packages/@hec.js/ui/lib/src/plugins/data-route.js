@@ -39,6 +39,7 @@ export const dataMatchPlugin = {
     } 
 
     const update = (/** @type { string } */ url) => {
+      console.log(url, pathname(node.getAttribute('href')), pathname(url), pathname(node.getAttribute('href')) == pathname(url))
       if (pathname(node.getAttribute('href')) == pathname(url)) {
         node.classList.add(className);
       } else {
