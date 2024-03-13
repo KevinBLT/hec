@@ -66,7 +66,8 @@ export class API {
       status: 404,
       url: null,
       accept: null,
-      contentType: null
+      contentType: null,
+      response: null,
     };
 
     const stack        = [],
@@ -127,11 +128,14 @@ export class API {
     
     findRoutes(apiRequest, this.#routes);
 
-    const r = await next() ?? new Response(null, { 
-      status: context.status 
+    const r = await next().catch((error) => {
+      console.error(error);
+
+      context.response = '{"error": 0, "message": "See logs for information"}';
+      context.status   = 500;
     });
 
-    return r;
+    return r ?? new Response(context.response, { status: context.status });
   }
   
   serve() {

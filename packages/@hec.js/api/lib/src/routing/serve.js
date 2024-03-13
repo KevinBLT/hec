@@ -15,14 +15,15 @@ export function serveBy(fetch) {
       req.headers['cf-visitor']?.includes('https') ? 'https' : null
     ) ?? 'http';
 
+    req.headers['cf-connecting-ip'] ??= req.socket.remoteAddress;
+    req.headers['x-real-ip']        ??= req.socket.remoteAddress;
+
     fetch(
       new Request(`${ scheme }://${ req.headers.host }${ req.url }`, {
         method: req.method,
         duplex: 'half',
         // @ts-ignore
-        headers: Object.assign({
-          'cf-connecting-ip': req.socket.remoteAddress
-        }, req.headers),
+        headers: req.headers,
         body: ['HEAD', 'GET', 'OPTIONS'].includes(req.method) ? null : 
           new ReadableStream({
             start(controller) {
