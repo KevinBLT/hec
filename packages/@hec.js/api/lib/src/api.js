@@ -73,7 +73,7 @@ export class API {
     const stack        = [],
           paramPointer = new WeakMap();
 
-    /** @type { () => Promise<Response> | null } */
+    /** @type { () => Response | Promise<Response> | null } */
     const next = () => {
       const r = stack.shift();
 
@@ -129,16 +129,13 @@ export class API {
     
     findRoutes(apiRequest, this.#routes);
 
-    const r = await next()?.catch((error) => {
+    try {
+      return await next() ?? new Response(context.response, { status: context.status });
+    } catch (error) {
       console.error(error);
 
-      context.response = '{"error": 0, "message": "See logs for information"}';
-      context.status   = 500;
-
-      return null;
-    });
-
-    return r ?? new Response(context.response, { status: context.status });
+      return Response.json({ error: 0, message: 'See logs for details' }, { status: 500 });
+    }
   }
   
   serve() {
