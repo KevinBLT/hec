@@ -42,6 +42,8 @@ new MutationObserver((mutations) => {
           while (resolvers.length) {
             resolvers.shift()();
           } 
+
+          notifiersMounted.delete(node);
         }
 
         mount(node.childNodes);
@@ -55,6 +57,8 @@ new MutationObserver((mutations) => {
         if (componentUpdate.has(node)) {
           node.dispatchEvent(new CustomEvent('::unmount'));
         }
+     
+        unmount(node.childNodes);
       }
     }
 
