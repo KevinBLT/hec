@@ -41,14 +41,22 @@ export function component(name, props, fn) {
     /** @type {{ [key: string]: any }} */ context
   ) => {
     const signals  = {},
-          children = Array.from(node.childNodes);
+          children = Array.from(node.childNodes),
+          asType   = (p, v) => {
+            const mapper = {
+              'number': parseFloat,
+              'boolean': (v) => v == ' true'
+            };
+
+            return mapper[typeof props[p]]?.(v) ?? v;
+          }
 
     const attributeUpdate = (attribute) => {
       const v = node.getAttribute(attribute);
 
       for (const p in signals) {
         if (p.toLowerCase() == attribute) {
-          signals[p](typeof props[p] == 'number' ? parseFloat(v) : v)
+          signals[p](asType(p, v))
         }
       }
     }
@@ -62,7 +70,7 @@ export function component(name, props, fn) {
         signals[p] = isSignal(pv) ? pv : signal(pv);
       } else {
         // @ts-ignore
-        signals[p] = signal(typeof props[p] == 'number' ? parseFloat(v) : v);
+        signals[p] = signal(asType(p, v));
         // @ts-ignore
         signals[p].subscribe({ 
           next: (v) => isValue(v) ? node.setAttribute(p, v) : node.removeAttribute(p) 
