@@ -45,7 +45,7 @@ export function component(name, props, fn) {
           asType   = (p, v) => {
             const mapper = {
               'number': parseFloat,
-              'boolean': (v) => v == ' true'
+              'boolean': (v) => v == 'true'
             };
 
             return mapper[typeof props[p]]?.(v) ?? v;
