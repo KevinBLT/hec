@@ -31,7 +31,7 @@ export const dataMatchPlugin = {
 
   run: (node) => {
 
-    if (!node.parentNode) {
+    if (!node.parentNode || node.hasAttribute('download')) {
       return;
     }
 
