@@ -19,7 +19,7 @@ export const dataIncludePlugin = {
     const execute = async () => {
       node.dispatchEvent(new CustomEvent('::load', { bubbles: true }));
 
-      node.classList.add('--loading');
+      node.setAttribute('data-loading', node.dataset.include);
 
       const response = await fetch(node.dataset.include, {
         headers: {
@@ -47,7 +47,7 @@ export const dataIncludePlugin = {
         node.removeAttribute('data-include');
         node.removeAttribute('data-lazy');
         node.removeAttribute('data-group');
-        node.classList.remove('--loading');
+        node.removeAttribute('data-loading');
 
         if (!node.className) {
           node.removeAttribute('class');

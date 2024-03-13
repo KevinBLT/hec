@@ -25,13 +25,9 @@ export const dataComponentPlugin = {
       }
 
       node.removeAttribute('data-lazy');
-      node.classList.add('--loading');
+      node.setAttribute('data-loading', component);
       await components.get(component)(node, props);
-      node.classList.remove('--loading');
-
-      if (!node.className) {
-        node.removeAttribute('class');
-      }
+      node.removeAttribute('data-loading');
     }
 
     if (node.hasAttribute('data-lazy')) {
