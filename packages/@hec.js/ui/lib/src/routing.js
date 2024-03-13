@@ -1,6 +1,7 @@
 import { onMount } from "./notify.js";
 import { signal } from "./signal.js";
 
+/** @type { import("./signal.js").Signal<{ [key: string]: string }> } */
 export const query = signal({});
 export const route = signal(location.pathname);
 
