@@ -1,5 +1,6 @@
 /**
- * @typedef {{ affected: number, duration: number } & { [key: string]: any }[]} DatabaseResult
+ * @template T
+ * @typedef {{ affected: number, duration: number } & ({ [key: string]: any } & T)[]} DatabaseResult
  */
 export class Database {
     /** @param {Partial<Database> } connection */
@@ -17,26 +18,29 @@ export class Database {
     /** @type { number } */
     pool: number;
     /**
+     * @template T
      * @param { string } query
      * @param { any[] }  params
-     * @returns { Promise<DatabaseResult> }
+     * @returns { Promise<DatabaseResult<T>> }
      */
-    query(query: string, params?: any[]): Promise<DatabaseResult>;
+    query<T>(query: string, params?: any[]): Promise<DatabaseResult<T>>;
     /**
-     * @param { (query: (query: string, params: any[]) => Promise<DatabaseResult>, rollback: () => void) => void } steps
+     * @template T
+     * @param { (query: (query: string, params: any[]) => Promise<DatabaseResult<T>>, rollback: () => void) => void } steps
      * @returns { Promise<boolean> }
      */
-    transaction(steps: (query: (query: string, params: any[]) => Promise<DatabaseResult>, rollback: () => void) => void): Promise<boolean>;
+    transaction<T_1>(steps: (query: (query: string, params: any[]) => Promise<DatabaseResult<T_1>>, rollback: () => void) => void): Promise<boolean>;
     /**
+     * @template T
      * @param { string } query
      * @param { any[] }  params
-     * @returns { AsyncIterable<any> }
+     * @returns { AsyncIterable<T> }
      */
-    stream(query: string, params?: any[]): AsyncIterable<any>;
+    stream<T_2>(query: string, params?: any[]): AsyncIterable<T_2>;
 }
-export type DatabaseResult = {
+export type DatabaseResult<T> = {
     affected: number;
     duration: number;
-} & {
+} & ({
     [key: string]: any;
-}[];
+} & T)[];

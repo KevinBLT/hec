@@ -1,5 +1,6 @@
 /**
- * @typedef {{ affected: number, duration: number } & { [key: string]: any }[]} DatabaseResult
+ * @template T
+ * @typedef {{ affected: number, duration: number } & ({ [key: string]: any } & T)[]} DatabaseResult
  */
 
 export class Database {
@@ -28,16 +29,18 @@ export class Database {
   }
 
   /**
+   * @template T
    * @param { string } query 
    * @param { any[] }  params 
-   * @returns { Promise<DatabaseResult> }
+   * @returns { Promise<DatabaseResult<T>> }
    */
   async query(query, params = []) {
     return Object.assign([], { affected: 0, duration: 0 });
   }
   
   /**
-   * @param { (query: (query: string, params: any[]) => Promise<DatabaseResult>, rollback: () => void) => void } steps 
+   * @template T
+   * @param { (query: (query: string, params: any[]) => Promise<DatabaseResult<T>>, rollback: () => void) => void } steps 
    * @returns { Promise<boolean> }
    */
   async transaction(steps) {
@@ -45,9 +48,10 @@ export class Database {
   }
 
   /**
+   * @template T
    * @param { string } query 
    * @param { any[] }  params 
-   * @returns { AsyncIterable<any> }
+   * @returns { AsyncIterable<T> }
    */
   async * stream(query, params = []) {}
 }
