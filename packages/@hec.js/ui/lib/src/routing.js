@@ -142,10 +142,11 @@ function updateRouting(href = location.href) {
 }
 
 const onNavigate = (event) => {
-  const href = event.target.closest('a')?.href,
+  const aTag = event.target.closest('a'),
+        href = aTag?.href,
         url  = new URL(href, location.href);
 
-  if (href && url.hostname == location.hostname) {
+  if (href && !aTag.hasAttribute('download') && url.hostname == location.hostname) {
     if (updateRouting(href)) {
       _pushState.call(window.history, null, null, href);
       event.preventDefault();
