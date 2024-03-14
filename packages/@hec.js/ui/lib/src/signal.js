@@ -96,7 +96,11 @@ window.addEventListener('storage', (storageEvent) => {
 export function signal(value = null, options = {}) {  
 
   if (options.id && sharedSignals.has(options.id)) {
-    return sharedSignals.get(options.id);
+    const sharedSignal = sharedSignals.get(options.id);
+
+    sharedSignal(value);
+
+    return sharedSignal;
   }
 
   /** @type { Subscriber<T>[] } */
@@ -245,7 +249,7 @@ export function memo(fn, signals = [], value = null) {
 
 /** 
  * @template T
- * @param { () => Promise<T> } fetch 
+ * @param { () => Promise<T> | T } fetch 
  * @param { T } initialValue 
  * @returns { Resource<T> }
  * 
@@ -267,7 +271,7 @@ export function resource(fetch, initialValue = null) {
   /** @type { Signal<'pending' | 'error' | 'loaded'> } */
   const state = signal('loaded');
 
-  const update = async () => {
+  const update = async (param = null) => {
 
     if (state() == 'pending') {
       return;
@@ -275,12 +279,15 @@ export function resource(fetch, initialValue = null) {
     
     try {
       state('pending');
-      value(await fetch());
+      // @ts-ignore
+      value(await fetch(param));
       state('loaded');
 
       // @ts-ignore
       delete value.error;
     } catch (error) {
+      console.error(error);
+
       state('error');
 
       // @ts-ignore
@@ -299,7 +306,7 @@ export function resource(fetch, initialValue = null) {
  * @template P
  * @template T
  * @param { P } prop 
- * @param { (value: P) => Promise<T> } fetch
+ * @param { (value: P) => Promise<T> | T } fetch
  * @param { T } initialValue 
  * @returns { Resource<T> }
 */
@@ -307,7 +314,8 @@ export function resourceBy(prop, fetch, initialValue = null) {
   const r = resource(() => fetch(f(prop)), initialValue);
   
   if (isSignal(prop)) {
-    prop.subscribe({ next: () => r.refetch() });
+    // @ts-ignore
+    prop.subscribe({ next: (v) => r.refetch(v) });
   }
 
   return r;
