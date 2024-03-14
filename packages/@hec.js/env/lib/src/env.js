@@ -30,7 +30,9 @@ export async function environment(mode = 'prod') {
         const beforeComment = line.split(/^#| #/).at(0).trim();
 
         if (beforeComment) {
-          const [key, value] = beforeComment.split('=');
+          const index = beforeComment.indexOf('='),
+                key   = beforeComment.substring(0, index),
+                value = beforeComment.substring(index + 1);
 
           env[key.trim()] = value.trim();
         }
@@ -38,5 +40,5 @@ export async function environment(mode = 'prod') {
     }
   }
 
-  return Object.assign(process.env, env);
+  return Object.assign(env, process.env);
 }

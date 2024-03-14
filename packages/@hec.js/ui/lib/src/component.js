@@ -30,11 +30,11 @@ const attributeObserver = new MutationObserver((mutations) => {
 
 /**
  * @template T
- * @param { string } name 
- * @param { T } props 
- * @param { ComponentConstructor<T>} fn 
+ * @typedef { (name: string, props: T, fn: ComponentConstructor<T>) => void } UIElement
  */
-export function component(name, props, fn) {
+
+/** @type { UIElement<T> } */
+function UIElement(name, props, fn) {
   
   components.set(name, async (
     /** @type { Element } */ node,
@@ -121,5 +121,11 @@ export function component(name, props, fn) {
   emit('::component/' + name);
 }
 
-export const view = component;
-export const page = component;
+/** @type { UIElement<T> } */
+export const component = (name, props, fn) => UIElement(`component/${ name }`, props, fn);
+
+/** @type { UIElement<T> } */
+export const view = (name, props, fn) => UIElement(`view/${ name }`, props, fn);
+
+/** @type { UIElement<T> } */
+export const page = (name, props, fn) => UIElement(`page/${ name }`, props, fn);

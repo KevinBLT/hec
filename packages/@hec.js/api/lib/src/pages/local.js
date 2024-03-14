@@ -1,8 +1,6 @@
 import path from 'path';
 
 /**
- * @template T
- * 
  * @param {{
  *   directory?: string,
  *   fileProvider: (request: Request) => Promise<Response>,
@@ -37,12 +35,14 @@ export function pages(options) {
         response = location.ext ? await fileProvider(request) : new Response(null, { status: 404 }),
         origin   = url.origin;
 
-    if (response.status == 404) {
+    if (response.status == 404 && request.headers.get('accept')?.includes('html')) {
 
       for (const index of options.indexes) {
         response = await options.fileProvider(new Request(request.url + index, request));
 
         if (response.ok) {
+          response.headers.set('cache-control', 'no-cache');
+          
           return response;
         }
       }
