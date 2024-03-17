@@ -112,7 +112,11 @@ export function signal(value = null, options = {}) {
     value = v;
 
     if (storage) {
-      storage.setItem(options.id, JSON.stringify(value));
+      if (v === null || v === undefined) {
+        storage.removeItem(options.id);
+      } else {
+        storage.setItem(options.id, JSON.stringify(value));
+      }
     }
 
     for (const subscriber of subscribers) {

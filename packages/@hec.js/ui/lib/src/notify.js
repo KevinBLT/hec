@@ -20,7 +20,7 @@ const intersectionObserver = new IntersectionObserver((entries) => {
     }
   }
 }, {
-  rootMargin: '256px',
+  rootMargin: '512px',
 });
 
 new MutationObserver((mutations) => {
