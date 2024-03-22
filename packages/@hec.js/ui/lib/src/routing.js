@@ -8,7 +8,7 @@ export const params = signal({});
 
 const _pushState    = window.history.pushState,
       _replaceState = window.history.replaceState,
-      state         = { updateQueued: false };
+      state         = { updateQueued: false, hops: 0 };
 
 /** @type { HTMLMetaElement } */
 const meta = document.querySelector('head meta[name="route"]') || document.createElement('meta');
@@ -140,9 +140,13 @@ function updateRouting(href = location.href) {
     route(url.pathname);
     query(Object.fromEntries(new URLSearchParams(location.search)));
     params(hasFullMatch.pattern.exec(href).pathname.groups);
-  } else if (route() !== url.pathname) {
-    console.log('Should not go here?')
+    
+    state.hops = 0;
+  } else if (route() !== url.pathname && state.hops == 0) {
+    state.hops++;
     updateRouting(route());
+  } else {
+    location.href = url.toString();
   }
 
   return !!hasFullMatch;  
