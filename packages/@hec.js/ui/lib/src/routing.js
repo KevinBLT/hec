@@ -2,8 +2,9 @@ import { onMount } from "./notify.js";
 import { signal } from "./signal.js";
 
 /** @type { import("./signal.js").Signal<{ [key: string]: string }> } */
-export const query = signal({});
-export const route = signal(location.pathname);
+export const query  = signal({});
+export const route  = signal(location.pathname);
+export const params = signal({});
 
 const _pushState    = window.history.pushState,
       _replaceState = window.history.replaceState,
@@ -92,9 +93,12 @@ export function addRoute(route) {
 
 
 function updateRouting(href = location.href) {
-  href = new URL(href.replace(/index\.*[a-z0-9]*$/gm, ''), location.href).toString();
-
-  let hasFullMatch = false;
+  const url = new URL(href.replace(/index\.*[a-z0-9]*$/gm, ''), location.href);
+  
+  href = url.toString()
+  
+  /** @type { Route } */
+  let hasFullMatch = null;
 
   /** @param { Route[] } routes */
   const updateGroup = (routes) => {
@@ -114,8 +118,9 @@ function updateRouting(href = location.href) {
         if (route.group.length) {
           updateGroup(route.group);
         } else {
-          hasFullMatch = true;
+          hasFullMatch = route;
           meta.content = route.pattern.pathname;
+          
         }
       } else {
         route.node.classList.remove('--active');
@@ -131,14 +136,16 @@ function updateRouting(href = location.href) {
 
   state.updateQueued = false;
 
-  if (updateGroup(routes)) {
-    route(href);
+  if (updateGroup(routes) && hasFullMatch) {
+    route(url.pathname);
     query(Object.fromEntries(new URLSearchParams(location.search)));
-  } else {
+    params(hasFullMatch.pattern.exec(href).pathname.groups);
+  } else if (route() !== url.pathname) {
+    console.log('Should not go here?')
     updateRouting(route());
   }
 
-  return hasFullMatch;  
+  return !!hasFullMatch;  
 }
 
 const onNavigate = (event) => {
