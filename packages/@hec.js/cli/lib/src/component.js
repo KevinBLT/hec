@@ -33,6 +33,6 @@ export async function createComponent(type = 'component', options, name = '') {
   return Promise.all([
     writeFile(filePath(options.js),   template),
     writeFile(filePath(options.html), ''),
-    writeFile(filePath(options.css),  '')
+    writeFile(filePath(options.css),  `[data-${ type }="${ name }"] {\n\n}`)
   ]);
 }
