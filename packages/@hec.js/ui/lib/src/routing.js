@@ -142,8 +142,9 @@ function updateRouting(href = location.href) {
     params(hasFullMatch.pattern.exec(href).pathname.groups);
     
     state.hops = 0;
-  } else if (route() !== url.pathname && state.hops == 0) {
+  } else if (route() !== url.pathname && state.hops < 5) {
     state.hops++;
+    console.log('Hopping around', state.hops);
     updateRouting(route());
   } else {
     location.href = url.toString();
