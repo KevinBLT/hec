@@ -6,15 +6,17 @@ import path from 'path';
  *   fileProvider: (request: Request) => Promise<Response>,
  *   indexes?: string[],
  *   index?: string,
- *   errorPages?: { [key: number]: string }
+ *   errorPages?: { [key: number]: string },
+ *   cacheControl?: string
  * }} options 
  * 
  * @returns { (request: Request) => Promise<Response> }
  * 
  * @description 
- * Option `fileProvder` is called to retrieve a file
- * Option `index` if this is set, it will serve all requests that don't match a file
- * Option `indexes` is used to append strings the and of a url if it's not found.
+ * Option `fileProvder` is called to retrieve a file  
+ * Option `index` if this is set, it will serve all requests that don't match a file  
+ * Option `indexes` is used to append strings the and of a url if it's not found.  
+ * Option `cacheControl` is used to set a `cache-control` header to the `html` responses.  
  * Example using ['.html', 'index.html']:
  *  - request: `/foobar` => /foobar.html
  *  - request: `/foobar/` => /foobar/index.html
@@ -23,8 +25,9 @@ import path from 'path';
  * Example: { 404: '/404.html' }
  */
 export function pages(options) {
-  options.directory ??= '.';
-  options.indexes   ??= ['.html', 'index.html'];
+  options.directory    ??= '.';
+  options.indexes      ??= ['.html', 'index.html'];
+  options.cacheControl ??= 'no-cache';
 
   const fileProvider = options.fileProvider;
 
@@ -41,16 +44,21 @@ export function pages(options) {
         response = await options.fileProvider(new Request(request.url + index, request));
 
         if (response.ok) {
-          response.headers.set('cache-control', 'no-cache');
+          response.headers.set('cache-control', options.cacheControl);
           
           return response;
         }
       }
 
       if (options.index) {
-        return options.fileProvider(new Request(origin + options.index));
-      }
+        response = await options.fileProvider(new Request(origin + options.index));
 
+        if (response.ok) {
+          response.headers.set('cache-control', options.cacheControl); 
+        }
+
+        return response;
+      }
     }
 
     if (!response.ok) {

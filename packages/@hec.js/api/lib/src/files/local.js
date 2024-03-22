@@ -1,6 +1,8 @@
-import { stat, readFile } from 'fs/promises';
-import { lookup }         from 'mime-types';
-import path               from 'path';
+import { stat, open } from 'fs/promises';
+import { lookup }     from 'mime-types';
+import path           from 'path';
+import md5            from 'md5-file';
+import { ReadStream } from 'fs';
 
 /** @typedef {{ etag?: string, 'last-modified'?: string } & { [key: string]: string }} FileInfo */
 
@@ -51,37 +53,60 @@ export function files(options = {}) {
       return new Response(null, { status: 404 });
     }
 
-    const data         = await readFile(filePath),
-          etag         = `"${Buffer.from(await crypto.subtle.digest('SHA-1', data)).toString('hex')}"`,
+    const etag         = `W/"${ await md5(filePath) }"`,
           size         = fileStats.size,
           lastModified = new Date(fileStats.mtime).toUTCString(),
           range        = parseRangeHeader(request, size);
 
-    if (headers.has('if-range') && ifRange != lastModified && !ifRange?.includes(etag)) {
+    if (headers.has('if-range') && ifRange !== lastModified && ifRange !== etag) {
       headers.delete('range');
     }
 
     const responseHeaders = {
-      'content-type'  : lookup(filePath) || 'application/octect-stream',
-      'content-size'  : (range.end - range.start).toString(),
-      'cache-control' : options.cacheControl,
-      'last-modified' : lastModified,
-      'etag'          : etag,
-      'accept-ranges' : 'bytes',
-      'content-range' : `bytes ${range.start}-${range.end - 1}/${size}`
+      'content-type'   : lookup(filePath) || 'application/octect-stream',
+      'content-length' : (range.end - range.start + 1).toString(),
+      'cache-control'  : options.cacheControl,
+      'last-modified'  : lastModified,
+      'etag'           : etag,
+      'accept-ranges'  : 'bytes',
     };
+
+    if (request.headers.has('range')) {
+      responseHeaders['content-range'] = `bytes ${range.start}-${range.end}/${size}`;
+    }
 
     if (ifNoneMatch === etag || ifModifiedSince === lastModified) {
       return new Response(null, { status: 304, headers: responseHeaders });
     }
 
-    cache.set(filePath, responseHeaders);
+    if (options.cacheDuration) {
+      cache.set(filePath, responseHeaders);
+      setTimeout(() => cache.delete(filePath), options.cacheDuration);
+    }
 
-    setTimeout(() => cache.delete(filePath), options.cacheDuration);
+    const file       = await open(filePath),
+          fileStream = file.createReadStream(range);
 
-    return new Response(
-      headers.has('range') ? data.subarray(range.start, range.end) : data, 
-      { 
+    return new Response(new ReadableStream({
+      start(stream) {
+        let isClosed = false;
+
+        const end = async () => {
+          if (!isClosed) {
+            isClosed = true;
+            stream.close();
+            fileStream.close();
+            await file.close();
+          }
+        }
+
+        request.signal.addEventListener('abort', () => end());
+
+        fileStream.on('data',  (data) => stream.enqueue(data));
+        fileStream.on('close', ()     => end());
+        fileStream.on('error', ()     => end());
+      }
+    }), { 
         status  : headers.has('range') ? 206 : 200,
         headers : responseHeaders
       }
@@ -100,7 +125,11 @@ export function files(options = {}) {
  */
 function parseRangeHeader(request, size) {
   const r = request.headers.get('range'),
-        s = r ? r.substring(6).split('-').map(parseInt) : [0, size];
+        m = size - 1,
+        s = r ? r.substring(6).split('-').map(e => parseInt(e)) : [0, m];
 
-  return { start : s[0] || 0, end: Math.min(s[1] || size, size) };
+  return { 
+    start: s[0] || 0, 
+    end:   Math.min(s[1] || m, m) 
+  };
 }

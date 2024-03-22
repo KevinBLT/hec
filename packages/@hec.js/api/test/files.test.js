@@ -19,7 +19,8 @@ api.route({
   path: '/*', 
   fetch: files({ 
     directory: './packages/@hec.js/api/test/assets', 
-    cacheControl: 'private, max-age=0'
+    cacheControl: 'private, max-age=0',
+    cacheDuration: 0
   })
 });
 

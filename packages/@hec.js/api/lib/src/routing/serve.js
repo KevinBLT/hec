@@ -18,10 +18,15 @@ export function serveBy(fetch) {
     req.headers['cf-connecting-ip'] ??= req.socket.remoteAddress;
     req.headers['x-real-ip']        ??= req.socket.remoteAddress;
 
+    const abort = new AbortController();
+
+    req.on('close', () => abort.abort());
+
     fetch(
       new Request(`${ scheme }://${ req.headers.host }${ req.url }`, {
         method: req.method,
         duplex: 'half',
+        signal: abort.signal,
         // @ts-ignore
         headers: req.headers,
         body: ['HEAD', 'GET', 'OPTIONS'].includes(req.method) ? null : 

@@ -62,6 +62,10 @@ export class API {
       apiRequest = request;
     }
 
+    if (!apiRequest.path.startsWith('/.well-known') && apiRequest.path.match(/\/[_.]/)) {
+      return new Response(null, { status: 403 });
+    }
+
     const context = {
       status: 404,
       url: null,
@@ -125,7 +129,7 @@ export class API {
           }
         }
       }  
-    } 
+    }
     
     findRoutes(apiRequest, this.#routes);
 
