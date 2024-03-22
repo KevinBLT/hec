@@ -3,4 +3,4 @@
 import { createComponent } from "../lib/index.js"
 import args from 'args';
 
-await createComponent('component', args.parse(process.argv), process.argv.at(-1))
+await createComponent('view', args.parse(process.argv), process.argv.at(-1))
