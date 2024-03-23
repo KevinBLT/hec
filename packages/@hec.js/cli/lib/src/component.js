@@ -24,7 +24,7 @@ export async function createComponent(type = 'component', options, name = '') {
 
             return templateByName('${ webPath(options.name || options.html) }');
           });
-        `.replaceAll('        ', '');
+        `.replaceAll('          ', '');
 
   await mkdir(path.parse(filePath(options.html)).dir).catch(_ => null);
   await mkdir(path.parse(filePath(options.js)).dir).catch(_ => null);
