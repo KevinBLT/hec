@@ -84,6 +84,10 @@ export function files(options = {}) {
       setTimeout(() => cache.delete(filePath), options.cacheDuration);
     }
 
+    if (size <= 0) {
+      return new Response(null, { status: 200, headers: responseHeaders });
+    }
+
     const file       = await open(filePath),
           fileStream = file.createReadStream(range);
 
@@ -125,7 +129,7 @@ export function files(options = {}) {
  */
 function parseRangeHeader(request, size) {
   const r = request.headers.get('range'),
-        m = Math.max(size - 1, 0),
+        m = size - 1,
         s = r ? r.substring(6).split('-').map(e => parseInt(e)) : [0, m];
 
   return { 
