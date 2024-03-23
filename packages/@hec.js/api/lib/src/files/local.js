@@ -125,7 +125,7 @@ export function files(options = {}) {
  */
 function parseRangeHeader(request, size) {
   const r = request.headers.get('range'),
-        m = size - 1,
+        m = Math.max(size - 1, 0),
         s = r ? r.substring(6).split('-').map(e => parseInt(e)) : [0, m];
 
   return { 
