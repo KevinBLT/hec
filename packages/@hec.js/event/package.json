@@ -1,0 +1,14 @@
+{
+  "name": "@hec.js/event",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "Event lib for the hec.dev environment",
+  "license": "MIT",
+  "main": "./lib/index.js",
+  "dependencies": {
+    "@hec.js/evens": "file:./"
+  },
+  "devDependencies": {
+    "vitest": "^1.1.1"
+  }
+}
