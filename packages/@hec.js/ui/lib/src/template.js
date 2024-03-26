@@ -195,7 +195,7 @@ export const bindExpressions = (text, props, update, asString = true) => {
       value = prop(props, exp.prop);
     }
 
-    if ((value === undefined || value === null) && !Object.keys(exp.meta).length) {
+    if (value === undefined && !Object.keys(exp.meta).length) {
       console.warn(`{{ ${exp.prop} }}: No value for this key`, { key: exp.prop, value });
     }
 
