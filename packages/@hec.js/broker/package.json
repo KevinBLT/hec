@@ -1,12 +1,12 @@
 {
-  "name": "@hec.js/event",
+  "name": "@hec.js/broker",
   "type": "module",
   "version": "0.0.1",
   "description": "Event lib for the hec.dev environment",
   "license": "MIT",
   "main": "./lib/index.js",
   "dependencies": {
-    "@hec.js/evens": "file:./"
+    "@hec.js/broker": "file:./"
   },
   "devDependencies": {
     "vitest": "^1.1.1"
