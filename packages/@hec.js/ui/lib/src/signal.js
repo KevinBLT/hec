@@ -251,9 +251,13 @@ export function memo(fn, signals = [], value = null) {
  * } & Signal<T>} Resource
  */
 
+/**
+ * @typedef { Signal<'pending' | 'error' | 'loaded'> } ResourceState 
+ */
+
 /** 
  * @template T
- * @param { () => Promise<T> | T } fetch 
+ * @param { (param?: any) => Promise<T> | T } fetch 
  * @param { T } initialValue 
  * @returns { Resource<T> }
  * 
@@ -269,10 +273,10 @@ export function memo(fn, signals = [], value = null) {
  */
 export function resource(fetch, initialValue = null) {
 
-  /** @type { Signal<T> } */
-  const value = signal(initialValue);
+  /** @type { Resource<T> } } */
+  const value = Object.assign(signal(initialValue), { state: null, refetch: null, error: null });
 
-  /** @type { Signal<'pending' | 'error' | 'loaded'> } */
+  /** @type { ResourceState } */
   const state = signal('loaded');
 
   const update = async (param = null) => {
@@ -283,27 +287,32 @@ export function resource(fetch, initialValue = null) {
     
     try {
       state('pending');
-      // @ts-ignore
-      value(await fetch(param));
+
+      const data = await fetch(param);
+
       state('loaded');
 
-      // @ts-ignore
       delete value.error;
+      
+      value(data);
+
     } catch (error) {
       console.error(error);
 
       state('error');
 
-      // @ts-ignore
       value.error = error;
     }
 
     return value();
   }
 
+  value.state   = state;
+  value.refetch = update;
+
   update();
 
-  return Object.assign(value, { state, refetch: update });
+  return value;
 }
 
 /**
