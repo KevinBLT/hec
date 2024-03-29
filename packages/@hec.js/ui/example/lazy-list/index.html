@@ -5,10 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>hec.js :: Lazy List</title>
     <script type="module" async src="./lazy-list.js"></script>
+
+    <style>
+      div {
+        background: rgba(0,0,0,0.1);
+      }
+
+      div div {
+        margin: 2rem;
+        overflow: scroll;
+        max-height: 75vh;
+      }
+
+      div div li {
+        padding: 1rem;
+        background: rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+      }
+    </style>
   </head>
   <body>
-    <ul>
-      <li data-lazy href="/example/lazy-list/" data-include="part.html" data-for="let person of persons"></li>
-    </ul>
+    <div>
+      The list items evaluate on scroll...
+      <div data-root>
+        <ul>
+          <li data-lazy href="/example/lazy-list/" data-include="part.html" data-for="let person of persons"></li>
+        </ul>
+      </div>  
+    </div>
   </body>
 </html>

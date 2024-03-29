@@ -6,23 +6,8 @@ const notifiersVisible = new WeakMap();
 /** @type { WeakMap<Node, ((value?: any) => void)[]> } */
 const notifiersMounted = new WeakMap();
 
-const intersectionObserver = new IntersectionObserver((entries) => {
-
-  for (const entry of entries) {
-    
-    if (entry.isIntersecting && notifiersVisible.has(entry.target)) {
-      
-      for (const resolve of notifiersVisible.get(entry.target)) {
-        resolve();
-        notifiersVisible.delete(entry.target);
-        intersectionObserver.unobserve(entry.target);
-      }
-    }
-  }
-}, {
-  root: document,
-  rootMargin: '256px',
-});
+/** @type { WeakMap<Node, IntersectionObserver> } */
+const notifierRoots = new WeakMap();
 
 new MutationObserver((mutations) => {
 
@@ -71,12 +56,34 @@ new MutationObserver((mutations) => {
 
 /** @param { Element } node */
 export function onVisible(node) {
+  const root = node.closest('[data-root]') ?? document;
+
+  if (!notifierRoots.has(root)) {
+    notifierRoots.set(root, new IntersectionObserver((entries, observer) => {
+
+      for (const entry of entries) {
+        
+        if (entry.isIntersecting && notifiersVisible.has(entry.target)) {
+          
+          for (const resolve of notifiersVisible.get(entry.target)) {
+            resolve();
+            notifiersVisible.delete(entry.target);
+            observer.unobserve(entry.target);
+          }
+        }
+      }
+    }, {
+      root: root,
+      rootMargin: '256px',
+    }));
+  }
+  
   return new Promise((resolve) => {
     const resolvers = notifiersVisible.get(node) ?? [];
 
     resolvers.push(resolve);
     notifiersVisible.set(node, resolvers);
-    intersectionObserver.observe(node);
+    notifierRoots.get(root).observe(node);
   });
 }
 
