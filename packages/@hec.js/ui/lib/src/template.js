@@ -10,6 +10,9 @@ const templatesLoading = {};
 /** @type { WeakMap<Node, { [key: string]: any }> } */
 export const nodeProps = new WeakMap();
 
+/** @type { WeakSet<Node> } */
+const done = new WeakSet();
+
 /**
  * @param { string | URL } name
  * @param { {[key: string]: any } } props
@@ -66,11 +69,8 @@ export function templateByString(template, props = {}) {
 export function templateByNode(template, props = {}) {
   nodeProps.set(template, props);
 
-  /** 
-   * @param { Node } node 
-   * @param { WeakSet<Node> } done 
-   */
-  const findExpression = (node, done = new WeakSet()) => {
+  /** @param { Node } node */
+  const findExpression = (node) => {
     let stopFlag = false;
 
     if (done.has(node)) {
@@ -114,11 +114,11 @@ export function templateByNode(template, props = {}) {
     done.add(node);
 
     for (const child of node.childNodes) {
-      findExpression(child, done);
+      findExpression(child);
     }
   };
 
-  findExpression(template, new WeakSet());
+  findExpression(template);
 
   return template;
 }

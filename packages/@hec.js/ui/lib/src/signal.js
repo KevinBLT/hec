@@ -318,7 +318,7 @@ export function resource(fetch, initialValue = null) {
 /**
  * @template P
  * @template T
- * @param { P } prop 
+ * @param { Signal<P> | P } prop 
  * @param { (value: P) => Promise<T> | T } fetch
  * @param { T } initialValue 
  * @returns { Resource<T> }
