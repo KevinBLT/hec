@@ -5,7 +5,7 @@
  * @returns {Expression}
  */
 export function expression(text) {
-  const parts = text.matchAll(/([^ {}\s]+)/g),
+  const parts = text.matchAll(/([a-z]+=["'][^'"]+["']|[^{}\s]+)/g),
         exp   = {
           meta: {},
           text: text,

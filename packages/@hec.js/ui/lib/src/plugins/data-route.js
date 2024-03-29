@@ -7,13 +7,6 @@ export const dataRoutePlugin = {
   select: (node) => node.matches('[data-route]'),
 
   run: async (node, props) => {
-
-    /* -- Polyfill safari -- */
-    if (!('URLPattern' in window)) { // @ts-ignore
-      await import('https://kevinblt.github.io/hec/packages/@hec.js/ui/dist/urlpattnern.min.js');
-    }
-    /* -- -- */
-
     const route       = node.dataset.route,
           placeholder = document.createComment('route: ' + route),
           update      = nodeUpdater(node, placeholder, props);

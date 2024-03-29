@@ -1,6 +1,12 @@
 import { onMount } from "./notify.js";
 import { signal } from "./signal.js";
 
+/* -- Polyfill safari -- */
+if (!('URLPattern' in window)) { // @ts-ignore
+  await import('https://kevinblt.github.io/hec/packages/@hec.js/ui/dist/urlpattnern.min.js');
+}
+/* -- -- */
+
 /** @type { import("./signal.js").Signal<{ [key: string]: string }> } */
 export const query  = signal({});
 export const route  = signal(location.pathname);
