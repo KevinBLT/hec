@@ -74,7 +74,7 @@ export function onVisible(node) {
       }
     }, {
       root: root,
-      rootMargin: '256px',
+      rootMargin: '512px',
     }));
   }
   
