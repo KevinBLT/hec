@@ -31,7 +31,7 @@ export function nodesBy(node, props) {
       templateByNode(node, props);
     }
 
-    return nodes;
+    return Array.from(node.content.childNodes);
   }
   
   return [node];
